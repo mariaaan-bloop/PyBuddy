@@ -1,10 +1,10 @@
-import anthropic
 import streamlit as st
+from google import genai
 
 # ---------------------------------------------------------------
 # KONFIGURASI
 # ---------------------------------------------------------------
-MODEL = "claude-sonnet-5-5"  # ganti jika ingin model lain
+MODEL = "gemini-2.5-flash"
 
 SYSTEM_PROMPT = """Kamu adalah PyBuddy, asisten belajar Python yang ramah untuk
 mahasiswa dan pelajar pemula di Indonesia.
@@ -12,7 +12,7 @@ mahasiswa dan pelajar pemula di Indonesia.
 Aturan:
 - Jawab dalam Bahasa Indonesia yang santai tapi jelas.
 - Jelaskan konsep dengan bahasa sederhana dan analogi sehari-hari.
-- Sertakan contoh kode pendek (maksimal ~15 baris) bila relevan.
+- Sertakan contoh kode pendek (maksimal sekitar 15 baris) bila relevan.
 - Jika pengguna mengirim error, jelaskan penyebabnya lalu beri cara memperbaikinya.
 - Jika pertanyaan di luar topik pemrograman, jawab singkat lalu arahkan kembali
   ke topik belajar coding.
@@ -21,7 +21,7 @@ Aturan:
 st.set_page_config(page_title="PyBuddy", page_icon="🐍")
 
 # ---------------------------------------------------------------
-# SIDEBAR: TARGET PENGGUNA & MANFAAT
+# SIDEBAR: INFORMASI APLIKASI & PENGATURAN
 # ---------------------------------------------------------------
 with st.sidebar:
     st.header("🐍 Tentang PyBuddy")
@@ -37,19 +37,68 @@ with st.sidebar:
         "- Menjelaskan konsep Python dengan bahasa sederhana\n"
         "- Membantu mencari penyebab error pada kode\n"
         "- Memberi contoh kode dan latihan soal\n"
-        "- Tersedia 24/7, tanpa takut bertanya hal 'dasar'"
+        "- Bisa digunakan kapan saja selama layanan API tersedia"
     )
 
-    # API key: dari secrets (deploy) atau input manual (lokal)
-    api_key = None
+    # Ambil API key dari Streamlit Secrets saat deploy.
+    # Jika belum ada, pengguna dapat memasukkannya lewat sidebar.
     try:
-        api_key = st.secrets["ANTHROPIC_API_KEY"]
+        saved_api_key = st.secrets.get("GEMINI_API_KEY", "")
     except Exception:
-        api_key = st.text_input("Anthropic API Key", type="password")
+        saved_api_key = ""
 
-    if st.button("🗑️ Hapus percakapan"):
+    google_api_key = st.text_input(
+        "Google AI API Key",
+        value=saved_api_key,
+        type="password",
+        help="Buat API key di https://aistudio.google.com/apikey",
+    )
+
+    reset_button = st.button(
+        "🗑️ Hapus percakapan",
+        help="Hapus riwayat chat dan mulai dari awal",
+    )
+
+# ---------------------------------------------------------------
+# INISIALISASI RIWAYAT CHAT
+# ---------------------------------------------------------------
+if "messages" not in st.session_state:
+    st.session_state.messages = []
+
+# Buat client baru saat pertama kali digunakan atau API key berubah.
+# Mengikuti materi training: client dan chat disimpan di session_state
+# agar konteks percakapan tidak hilang saat Streamlit melakukan rerun.
+if google_api_key and (
+    "genai_client" not in st.session_state
+    or getattr(st.session_state, "_last_key", None) != google_api_key
+):
+    try:
+        st.session_state.genai_client = genai.Client(api_key=google_api_key)
+        st.session_state._last_key = google_api_key
+        st.session_state.pop("chat", None)
         st.session_state.messages = []
-        st.rerun()
+    except Exception as e:
+        st.error(f"Tidak bisa menginisialisasi Gemini. Periksa API key kamu. Detail: {e}")
+        st.stop()
+
+# Buat sesi chat Gemini jika belum ada.
+if google_api_key and "genai_client" in st.session_state and "chat" not in st.session_state:
+    try:
+        st.session_state.chat = st.session_state.genai_client.chats.create(
+            model=MODEL,
+            config={"system_instruction": SYSTEM_PROMPT},
+        )
+    except Exception as e:
+        st.error(f"Gagal membuat sesi chat Gemini: {e}")
+        st.stop()
+
+# ---------------------------------------------------------------
+# TOMBOL RESET
+# ---------------------------------------------------------------
+if reset_button:
+    st.session_state.pop("chat", None)
+    st.session_state.messages = []
+    st.rerun()
 
 # ---------------------------------------------------------------
 # HALAMAN UTAMA
@@ -57,45 +106,43 @@ with st.sidebar:
 st.title("🐍 PyBuddy")
 st.caption("Teman belajar Python kamu. Tanya apa saja soal coding!")
 
-if "messages" not in st.session_state:
-    st.session_state.messages = []
+if not google_api_key:
+    st.info(
+        "Masukkan Google AI API Key di sidebar untuk mulai chat. "
+        "Kamu bisa membuat key di https://aistudio.google.com/apikey",
+        icon="🗝️",
+    )
+    st.stop()
 
-# Tampilkan riwayat chat
+# Tampilkan riwayat chat yang disimpan di st.session_state.
 for msg in st.session_state.messages:
     with st.chat_message(msg["role"]):
         st.markdown(msg["content"])
 
-# Input pengguna
-if prompt := st.chat_input("Contoh: Apa bedanya list dan tuple?"):
-    if not api_key:
-        st.warning("Masukkan API key di sidebar dulu ya.")
-        st.stop()
+# Input dan respons chatbot.
+prompt = st.chat_input("Contoh: Apa bedanya list dan tuple?")
 
+if prompt:
     st.session_state.messages.append({"role": "user", "content": prompt})
+
     with st.chat_message("user"):
         st.markdown(prompt)
 
-    client = anthropic.Anthropic(api_key=api_key)
-
-    def stream_reply():
-        with client.messages.stream(
-            model=MODEL,
-            max_tokens=1000,
-            system=SYSTEM_PROMPT,
-            messages=st.session_state.messages,
-        ) as stream:
-            for text in stream.text_stream:
-                yield text
-
     with st.chat_message("assistant"):
         try:
-            reply = st.write_stream(stream_reply())
+            response = st.session_state.chat.send_message_stream(prompt)
+            reply = st.write_stream(
+                chunk.text for chunk in response if getattr(chunk, "text", None)
+            )
             st.session_state.messages.append(
                 {"role": "assistant", "content": reply}
             )
-        except anthropic.AuthenticationError:
-            st.error("API key tidak valid. Cek lagi ya.")
-            st.session_state.messages.pop()
         except Exception as e:
-            st.error(f"Terjadi kesalahan: {e}")
-            st.session_state.messages.pop()
+            st.error(
+                "Terjadi kesalahan saat menghubungi Gemini. "
+                "Periksa API key, koneksi internet, kuota, atau nama model. "
+                f"Detail: {e}"
+            )
+            # Hapus pesan user yang gagal diproses agar bisa dicoba lagi.
+            if st.session_state.messages and st.session_state.messages[-1]["role"] == "user":
+                st.session_state.messages.pop()
