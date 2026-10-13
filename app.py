@@ -39,9 +39,6 @@ with st.sidebar:
         "- Memberi contoh kode dan latihan soal\n"
         "- Bisa digunakan kapan saja selama layanan API tersedia"
     )
-
-    # Ambil API key dari Streamlit Secrets saat deploy.
-    # Jika belum ada, pengguna dapat memasukkannya lewat sidebar.
     try:
         saved_api_key = st.secrets.get("GEMINI_API_KEY", "")
     except Exception:
