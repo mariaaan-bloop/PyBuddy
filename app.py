@@ -472,7 +472,7 @@ with st.sidebar:
     with st.expander("ℹ️ Tentang PyBuddy"):
         st.markdown(
             "**Untuk siapa?** Mahasiswa dan pelajar pemula yang baru belajar Python "
-            "dan sering bingung saat bertemu konsep baru atau error.\\n\\n"
+            "dan sering bingung saat bertemu konsep baru atau error.\n\n"
             "**Bisa bantu apa?** Menjelaskan konsep dengan bahasa sederhana, "
             "mencari penyebab error, dan memberi contoh kode serta latihan soal."
         )
