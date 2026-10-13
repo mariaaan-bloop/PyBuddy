@@ -7,7 +7,6 @@ from groq import Groq
 # ---------------------------------------------------------------
 # KONFIGURASI
 # ---------------------------------------------------------------
-# Model Groq. Bisa diganti lewat Streamlit Secrets: GROQ_MODEL.
 MODEL = os.environ.get("GROQ_MODEL", "openai/gpt-oss-20b")
 RETRIES = 2
 
@@ -27,7 +26,6 @@ XP_PER_QUESTION = 10
 XP_PER_LEVEL = 50
 LEVEL_TITLES = ["Pemula", "Penjelajah", "Pendekar Kode", "Jagoan Python", "Master Python"]
 
-# Menu topik di sidebar: (emoji, nama, pertanyaan yang dikirim ke PyBuddy)
 TOPICS = [
     ("🐣", "Dasar Python", "Jelaskan dasar-dasar Python untuk pemula: variabel, tipe data, dan print."),
     ("📦", "List, Tuple & Dict", "Jelaskan perbedaan list, tuple, dan dictionary, beserta kapan memakainya."),
@@ -37,7 +35,6 @@ TOPICS = [
     ("📝", "Latihan Soal", "Beri aku satu latihan soal Python untuk pemula, tanpa kunci jawaban dulu."),
 ]
 
-# Contoh pertanyaan di layar sambutan (berguna saat sidebar tertutup di HP)
 QUICK_STARTS = [
     ("📦", "Apa bedanya list dan tuple?"),
     ("🔁", "Jelaskan perulangan for dengan analogi"),
@@ -46,23 +43,22 @@ QUICK_STARTS = [
 ]
 
 # ---------------------------------------------------------------
-# TEMA
+# TEMA (DIPERBAIKI & DISEMPURNAKAN)
 # ---------------------------------------------------------------
-# Palet mengikuti warna logo Python (biru dan kuning).
 THEMES = {
     "light": {
         "icon": "☀️",
         "name": "Terang",
         "scheme": "light",
         "vars": {
-            "bg": "#F5F7FB", "bg_solid": "#F5F7FB", "surface": "#FFFFFF",
-            "soft": "#EDF1F8", "side_bg": "#FFFFFF", "line": "#DDE4F0",
-            "ink": "#16233F", "muted": "#5D6C89",
-            "accent": "#3776AB", "accent_d": "#2A5C8A", "accent_soft": "#E4EEF8",
-            "on_accent": "#FFFFFF", "hl": "#FFD43B", "danger": "#D13F3F",
-            "user_bg": "#E4EEF8", "user_line": "#B9D3EC",
-            "hero_1": "#3F82BD", "hero_2": "#244E7A", "code_ink": "#2A5C8A",
-            "term_bg": "#10203A", "shadow": "rgba(36,78,122,.45)",
+            "bg": "#F4F7FC", "bg_solid": "#F4F7FC", "surface": "#FFFFFF",
+            "soft": "#EAEFF7", "side_bg": "#FFFFFF", "line": "#D5DFEF",
+            "ink": "#182642", "muted": "#647493",
+            "accent": "#2B6CB0", "accent_d": "#2C5282", "accent_soft": "#EBF8FF",
+            "on_accent": "#FFFFFF", "hl": "#ECC94B", "danger": "#E53E3E",
+            "user_bg": "#EBF8FF", "user_line": "#BEE3F8",
+            "hero_1": "#3182CE", "hero_2": "#2B6CB0", "code_ink": "#2C5282",
+            "term_bg": "#1A202C", "shadow": "rgba(49,130,206,.2)",
         },
         "extra": "",
     },
@@ -71,17 +67,17 @@ THEMES = {
         "name": "Gelap",
         "scheme": "dark",
         "vars": {
-            "bg": "#0D1626", "bg_solid": "#0D1626", "surface": "#15223A",
-            "soft": "#1B2A45", "side_bg": "#0A1220", "line": "#2A3B5C",
-            "ink": "#E8EEFA", "muted": "#9FB0CE",
-            "accent": "#6AAEE6", "accent_d": "#4A8CC6", "accent_soft": "#1D3556",
-            "on_accent": "#0B1424", "hl": "#FFD43B", "danger": "#FF8585",
-            "user_bg": "#1D3556", "user_line": "#3B6AA0",
-            "hero_1": "#2D6AA3", "hero_2": "#17365C", "code_ink": "#FFD966",
-            "term_bg": "#08101D", "shadow": "rgba(0,0,0,.55)",
+            "bg": "#0B132B", "bg_solid": "#0B132B", "surface": "#1C2541",
+            "soft": "#283559", "side_bg": "#080F22", "line": "#3A4D78",
+            "ink": "#F0F4F8", "muted": "#9FB3C8",
+            "accent": "#4FD1C5", "accent_d": "#319795", "accent_soft": "#1D3B48",
+            "on_accent": "#0B132B", "hl": "#F6E05E", "danger": "#FEB2B2",
+            "user_bg": "#1E3A4C", "user_line": "#2C5282",
+            "hero_1": "#2B6CB0", "hero_2": "#1A365D", "code_ink": "#F6E05E",
+            "term_bg": "#070B16", "shadow": "rgba(0,0,0,.4)",
         },
         "extra": """
-[data-testid="stAlert"] p { color: #E8EEFA; }
+[data-testid="stAlert"] p { color: #F0F4F8; }
 """,
     },
     "sunset": {
@@ -89,15 +85,14 @@ THEMES = {
         "name": "Senja",
         "scheme": "light",
         "vars": {
-            "bg": "linear-gradient(180deg, #FFF4EA 0%, #FFE6EE 100%)",
-            "bg_solid": "#FFF0E8", "surface": "#FFFFFF",
-            "soft": "#FFF5EE", "side_bg": "#FFEFE3", "line": "#F3D3C3",
-            "ink": "#3B1F2B", "muted": "#8A5A55",
-            "accent": "#D9480F", "accent_d": "#B03A0C", "accent_soft": "#FFE1D0",
-            "on_accent": "#FFFFFF", "hl": "#FFC857", "danger": "#C2255C",
-            "user_bg": "#FFE1D0", "user_line": "#F7B592",
-            "hero_1": "#E8590C", "hero_2": "#C2255C", "code_ink": "#B03A0C",
-            "term_bg": "#2B1824", "shadow": "rgba(194,37,92,.35)",
+            "bg": "#FFF5F0", "bg_solid": "#FFF5F0", "surface": "#FFFFFF",
+            "soft": "#FEEBC8", "side_bg": "#FFFAF0", "line": "#FBD38D",
+            "ink": "#2D3748", "muted": "#7B341E",
+            "accent": "#DD6B20", "accent_d": "#C05621", "accent_soft": "#FFFAF0",
+            "on_accent": "#FFFFFF", "hl": "#D69E2E", "danger": "#E53E3E",
+            "user_bg": "#FEEBC8", "user_line": "#FBD38D",
+            "hero_1": "#ED8936", "hero_2": "#DD6B20", "code_ink": "#C05621",
+            "term_bg": "#2C1A1D", "shadow": "rgba(221,107,32,.2)",
         },
         "extra": "",
     },
@@ -124,7 +119,6 @@ THEME_CSS = (
 )
 
 BASE_CSS = """
-/* ---------- Dasar ---------- */
 .stApp { background: var(--bg); background-attachment: fixed; color: var(--ink); }
 [data-testid="stAppViewContainer"], [data-testid="stMain"] { background: transparent; }
 .stApp, .stApp p, .stApp li, .stApp label, .stApp h1, .stApp h2, .stApp h3,
@@ -139,7 +133,6 @@ header[data-testid="stHeader"] { background: transparent; }
 [data-testid="stExpandSidebarButton"], [data-testid="stSidebarCollapseButton"] button { color: var(--ink); }
 .block-container { max-width: 800px; padding-top: 1.6rem; padding-bottom: 6rem; }
 
-/* ---------- Header aplikasi ---------- */
 .appbar { background: linear-gradient(135deg, var(--hero-1), var(--hero-2)); color: #fff;
   border-radius: 22px; padding: 20px 24px 18px; margin-bottom: 28px;
   box-shadow: 0 14px 30px -18px var(--shadow); }
@@ -158,7 +151,6 @@ header[data-testid="stHeader"] { background: transparent; }
 .track { height: 10px; background: rgba(0,0,0,.25); border-radius: 99px; overflow: hidden; }
 .fill { height: 100%; background: var(--hl); border-radius: 99px; transition: width .5s ease; }
 
-/* ---------- Layar sambutan: terminal Python ---------- */
 .hero { display: flex; align-items: center; gap: 18px; margin: 4px 0 26px; }
 .mascot { flex: none; width: 84px; height: 84px; border-radius: 24px; display: grid;
   place-items: center; font-size: 3rem; background: var(--surface); border: 1px solid var(--line);
@@ -180,7 +172,6 @@ header[data-testid="stHeader"] { background: transparent; }
 @keyframes blink { 50% { opacity: 0; } }
 .hint { font-weight: 600; font-size: .92rem; color: var(--muted); margin: 0 0 12px; }
 
-/* ---------- Tombol (area utama) ---------- */
 .stButton, [data-testid="stButton"] { width: 100%; }
 .stButton > button {
   width: 100%; background: var(--surface); color: var(--ink); font-weight: 600; font-size: .98rem;
@@ -190,30 +181,26 @@ header[data-testid="stHeader"] { background: transparent; }
 }
 .stButton > button p { color: inherit !important; font-weight: inherit; font-size: inherit;
   margin: 0; line-height: 1.35; }
-.stButton > button:hover { background: var(--surface); border-color: var(--accent); color: var(--ink); }
+.stButton > button:hover { background: var(--soft); border-color: var(--accent); color: var(--ink); }
 .stButton > button:active { transform: translateY(1px); }
 .stButton > button:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
 
-/* Kartu contoh pertanyaan */
 div[class*="st-key-chip_"] button { justify-content: flex-start; text-align: left;
   min-height: 64px; padding: 12px 16px; }
 div[class*="st-key-chip_"] button div { justify-content: flex-start; text-align: left; width: 100%; }
 div[class*="st-key-chip_"] button p { white-space: normal; }
 
-/* ---------- Gelembung chat ---------- */
 [data-testid="stChatMessage"] { background: var(--surface) !important; border: 1px solid var(--line);
   border-radius: 16px; padding: 14px 18px; margin-bottom: 12px; }
 [data-testid="stChatMessage"]:has([data-testid="stChatMessageAvatarUser"]),
 [data-testid="stChatMessage"]:has([data-testid="chatAvatarIcon-user"]) {
   background: var(--user-bg) !important; border-color: var(--user-line); }
-/* Teks pesan mengikuti warna tema (mencegah tulisan gelap di mode gelap). */
 [data-testid="stChatMessage"] :is(p, li, h1, h2, h3, h4, strong, em, td, th, blockquote, span.katex) {
   color: var(--ink) !important; }
 [data-testid="stChatMessageAvatarAssistant"], [data-testid="stChatMessageAvatarUser"],
 [data-testid="chatAvatarIcon-assistant"], [data-testid="chatAvatarIcon-user"] {
   background: var(--surface); border: 1px solid var(--line); border-radius: 50%; }
 
-/* ---------- Kode ---------- */
 [data-testid="stCode"] pre, .stMarkdown pre { background: var(--soft) !important;
   border: 1px solid var(--line); border-radius: 12px; }
 [data-testid="stCode"] pre, [data-testid="stCode"] code, [data-testid="stCode"] code span,
@@ -223,7 +210,6 @@ div[class*="st-key-chip_"] button p { white-space: normal; }
   font-family: 'JetBrains Mono', monospace; font-size: .86em; font-weight: 700;
   border-radius: 6px; padding: .1em .4em; }
 
-/* ---------- Kolom input ---------- */
 [data-testid="stBottom"] > div { background: var(--bg-solid); }
 [data-testid="stChatInput"] { background: var(--surface); border: 1px solid var(--line);
   border-radius: 16px; box-shadow: 0 6px 20px -14px var(--shadow); }
@@ -237,7 +223,6 @@ div[class*="st-key-chip_"] button p { white-space: normal; }
   border-radius: 10px; }
 [data-testid="stChatInputSubmitButton"]:disabled { background: var(--soft); color: var(--muted); }
 
-/* ---------- Sidebar ---------- */
 [data-testid="stSidebar"] { background: var(--side-bg); border-right: 1px solid var(--line); }
 [data-testid="stSidebarHeader"] { padding: .6rem 1rem 0; min-height: 0; height: auto; }
 [data-testid="stSidebar"] [data-testid="stSidebarContent"] { padding: 0 1rem 1.4rem; }
@@ -258,7 +243,6 @@ div[class*="st-key-chip_"] button p { white-space: normal; }
 .side-foot { font-weight: 500; font-size: .8rem; color: var(--muted); text-align: center;
   padding-top: 10px; }
 
-/* Daftar topik: satu kolom, satu baris per topik, tinggi seragam */
 div[class*="st-key-nav"] button { justify-content: flex-start; background: transparent;
   color: var(--ink); border: 1px solid transparent; border-radius: 12px; min-height: 44px;
   padding: 6px 12px; box-shadow: none; }
@@ -269,7 +253,6 @@ div[class*="st-key-nav"] button:hover { background: var(--soft); border-color: t
 div[class*="st-key-navon_"] button { background: var(--accent-soft); box-shadow: inset 3px 0 0 var(--accent); }
 div[class*="st-key-navon_"] button p { font-weight: 800; }
 
-/* Pilihan tampilan: tiga ikon sejajar */
 div[class*="st-key-theme"] button { justify-content: center; background: var(--surface);
   border: 1px solid var(--line); border-radius: 12px; min-height: 44px; padding: 4px;
   box-shadow: none; }
@@ -278,7 +261,6 @@ div[class*="st-key-theme"] button:hover { background: var(--soft); border-color:
 div[class*="st-key-themeon_"] button { background: var(--accent-soft); border-color: var(--accent);
   box-shadow: 0 0 0 1px var(--accent); }
 
-/* Tombol hapus */
 div.st-key-reset button { background: transparent; color: var(--danger);
   border: 1px solid var(--danger); justify-content: center; font-weight: 700;
   min-height: 44px; box-shadow: none; }
@@ -313,7 +295,6 @@ st.markdown(
 # FUNGSI BANTU
 # ---------------------------------------------------------------
 def load_api_key():
-    """Ambil Groq API key dari Streamlit Secrets atau environment."""
     try:
         key = st.secrets.get("GROQ_API_KEY", "")
     except Exception:
@@ -322,13 +303,11 @@ def load_api_key():
 
 
 def is_busy(error):
-    """Deteksi error sementara atau batas pemakaian API."""
     text = str(error).upper()
     return any(k in text for k in ("503", "429", "502", "504", "RATE LIMIT", "OVERLOADED", "TEMPORARILY UNAVAILABLE"))
 
 
 def stream_reply():
-    """Kirim riwayat chat ke Groq dan stream jawaban."""
     client = st.session_state.groq_client
     chat_messages = [{"role": "system", "content": SYSTEM_PROMPT}]
     chat_messages.extend(st.session_state.messages)
@@ -361,7 +340,6 @@ def stream_reply():
 
 
 def hero_html(body):
-    """Layar sambutan: maskot + jendela terminal Python."""
     return (
         '<div class="hero"><div class="mascot">🐍</div><div class="term">'
         '<div class="term-bar"><span class="dot r"></span><span class="dot y"></span>'
@@ -382,7 +360,6 @@ def py_out(text, cursor=False):
 
 
 def render_header(slot):
-    """Gambar header aplikasi (logo, statistik, progres level) ke slot."""
     xp = st.session_state.xp
     level = xp // XP_PER_LEVEL + 1
     into_level = xp % XP_PER_LEVEL
@@ -434,14 +411,6 @@ with st.sidebar:
             st.rerun()
 
     st.markdown('<div class="side-divider"></div>', unsafe_allow_html=True)
-    with st.expander("🎵 Musik belajar gratis"):
-        st.markdown(
-            "Putar musik lo-fi sambil belajar. Pilih lagu di Pixabay, lalu tekan **Free Download** "
-            "jika ingin menyimpan lagu. Musik Pixabay dapat digunakan gratis sesuai ketentuan lisensinya. "
-            "Jangan mengunggah ulang file musik sebagai karya milik sendiri.\n\n"
-            "[Dengarkan musik lo-fi di Pixabay](https://pixabay.com/music/search/lofi%20study/)"
-        )
-
     with st.expander("ℹ️ Tentang PyBuddy"):
         st.markdown(
             "**Untuk siapa?** Mahasiswa dan pelajar pemula yang baru belajar Python "
@@ -450,8 +419,6 @@ with st.sidebar:
             "mencari penyebab error, dan memberi contoh kode serta latihan soal."
         )
 
-    # API key tidak ditampilkan di UI sama sekali.
-    # Dibaca dari .streamlit/secrets.toml atau environment variable.
     groq_api_key = load_api_key()
 
     st.markdown('<div class="side-divider"></div>', unsafe_allow_html=True)
@@ -511,7 +478,6 @@ if not groq_api_key:
 
 pending = st.session_state.pop("pending", None)
 
-# Layar sambutan + contoh pertanyaan
 if not st.session_state.messages and not pending:
     st.markdown(
         hero_html(
@@ -529,13 +495,11 @@ if not st.session_state.messages and not pending:
             st.session_state.pending = text
             st.rerun()
 
-# Riwayat chat
 for msg in st.session_state.messages:
     avatar = "🐍" if msg["role"] == "assistant" else "🧑‍🎓"
     with st.chat_message(msg["role"], avatar=avatar):
         st.markdown(msg["content"])
 
-# Input
 prompt = st.chat_input("Contoh: Apa bedanya list dan tuple?") or pending
 
 if prompt:
@@ -549,7 +513,6 @@ if prompt:
             reply = st.write_stream(stream_reply())
             st.session_state.messages.append({"role": "assistant", "content": reply})
 
-            # Beri XP setiap pertanyaan berhasil dijawab.
             old_level = st.session_state.xp // XP_PER_LEVEL
             st.session_state.xp += XP_PER_QUESTION
             st.session_state.asked += 1
@@ -571,6 +534,5 @@ if prompt:
                     "Periksa GROQ_API_KEY, batas pemakaian API, atau ketersediaan model. "
                     f"Detail: {e}"
                 )
-            # Hapus pesan user yang gagal diproses agar bisa dicoba lagi.
             if st.session_state.messages and st.session_state.messages[-1]["role"] == "user":
                 st.session_state.messages.pop()
