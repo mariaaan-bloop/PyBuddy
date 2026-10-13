@@ -56,7 +56,7 @@ THEMES = {
             "ink": "#182642", "muted": "#647493",
             "accent": "#2B6CB0", "accent_d": "#2C5282", "accent_soft": "#EBF8FF",
             "on_accent": "#FFFFFF", "hl": "#ECC94B", "danger": "#E53E3E",
-            # Warna Bubble Chat User (Biru terang yang kontras)
+            # Warna Bubble Chat User (Biru terang kontras)
             "user_bg": "#DCEEFE", "user_line": "#90CDF4", "user_ink": "#1A365D",
             "hero_1": "#3182CE", "hero_2": "#2B6CB0", "code_ink": "#2C5282",
             "term_bg": "#1A202C", "shadow": "rgba(49,130,206,.2)",
@@ -204,7 +204,7 @@ div[class*="st-key-chip_"] button div { justify-content: flex-start; text-align:
 div[class*="st-key-chip_"] button p { white-space: normal; }
 
 /* ---------- Kustomisasi Bubble Chat (Bot vs User) ---------- */
-/* Style Default (Asisten / Bot) */
+/* 1. Style Default (Untuk Pesan Asisten / Bot) */
 [data-testid="stChatMessage"] { 
   background: var(--surface) !important; 
   border: 1px solid var(--line);
@@ -216,7 +216,7 @@ div[class*="st-key-chip_"] button p { white-space: normal; }
   color: var(--ink) !important; 
 }
 
-/* Style Khusus Pengguna (User) - Menargetkan elemen avatar user */
+/* 2. Style Khusus Pesan Pengguna (User) - Diletakkan SETELAH bot agar menimpa background bot */
 [data-testid="stChatMessage"]:has([data-testid="chatAvatarIcon-user"]),
 [data-testid="stChatMessage"]:has([data-testid="stChatMessageAvatarUser"]),
 [data-testid="stChatMessage"]:has(div[data-testid="stChatMessageAvatarUser"]) {
@@ -258,7 +258,7 @@ div[class*="st-key-chip_"] button p { white-space: normal; }
   border-radius: 10px; }
 [data-testid="stChatInputSubmitButton"]:disabled { background: var(--soft); color: var(--muted); }
 
-/* ---------- Sidebar & Perbaikan Tampilan Bagian Bawah ---------- */
+/* ---------- Sidebar & Perbaikan Tombol Tema Sejajar ---------- */
 [data-testid="stSidebar"] { background: var(--side-bg); border-right: 1px solid var(--line); }
 [data-testid="stSidebarHeader"] { padding: .6rem 1rem 0; min-height: 0; height: auto; }
 [data-testid="stSidebar"] [data-testid="stSidebarContent"] { padding: 0 1rem 1.4rem; display: flex; flex-direction: column; }
@@ -289,17 +289,17 @@ div[class*="st-key-nav"] button:hover { background: var(--soft); border-color: t
 div[class*="st-key-navon_"] button { background: var(--accent-soft); box-shadow: inset 3px 0 0 var(--accent); width: 100%; }
 div[class*="st-key-navon_"] button p { font-weight: 800; }
 
-/* Perbaikan khusus tombol pilihan tema agar sejajar rapi di sidebar */
+/* Perbaikan tombol pilihan tema agar pas berdampingan dalam 3 kolom tanpa melar */
 div[class*="st-key-theme"] { width: 100% !important; }
 div[class*="st-key-theme"] button { justify-content: center; background: var(--surface);
   border: 1px solid var(--line); border-radius: 12px; min-height: 44px; padding: 4px;
-  box-shadow: none; width: 100% !important; }
+  box-shadow: none; }
 div[class*="st-key-theme"] button p { font-size: 1.2rem; line-height: 1; }
 div[class*="st-key-theme"] button:hover { background: var(--soft); border-color: var(--accent); }
 div[class*="st-key-themeon_"] button { background: var(--accent-soft); border-color: var(--accent);
-  box-shadow: 0 0 0 1px var(--accent); width: 100% !important; }
+  box-shadow: 0 0 0 1px var(--accent); }
 
-/* Perbaikan tombol Hapus Percakapan */
+/* Tombol Hapus Percakapan */
 div.st-key-reset button { background: transparent; color: var(--danger);
   border: 1px solid var(--danger); justify-content: center; font-weight: 700;
   min-height: 44px; box-shadow: none; width: 100%; border-radius: 12px; }
