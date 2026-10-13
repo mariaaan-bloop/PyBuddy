@@ -5,3 +5,5 @@
 pip install -r requirements.txt
 streamlit run app.py
 ```
+
+Link : https://appbuddyapp.streamlit.app/
