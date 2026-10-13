@@ -175,12 +175,21 @@ header[data-testid="stHeader"] { background: transparent; }
 .stButton > button:focus-visible { outline: 3px solid var(--user-line); outline-offset: 2px; }
 div[class*="st-key-chip_"] button { justify-content: flex-start; text-align: left; }
 
-/* ---------- Gelembung chat ---------- */
-[data-testid="stChatMessage"] { background: var(--surface); border: 2px solid var(--line);
+/* ---------- Gelembung chat: kontras aman di semua tema ---------- */
+[data-testid="stChatMessage"] { background: var(--surface) !important; border: 2px solid var(--line);
   border-radius: 20px; padding: 14px 18px; margin-bottom: 14px; }
 [data-testid="stChatMessage"]:has([data-testid="stChatMessageAvatarUser"]),
 [data-testid="stChatMessage"]:has([data-testid="chatAvatarIcon-user"]) {
-  background: var(--user-bg); border-color: var(--user-line); }
+  background: var(--user-bg) !important; border-color: var(--user-line); }
+/* Paksa teks di pesan mengikuti warna tema; ini memperbaiki tulisan hitam saat dark mode. */
+[data-testid="stChatMessage"] p, [data-testid="stChatMessage"] li,
+[data-testid="stChatMessage"] h1, [data-testid="stChatMessage"] h2,
+[data-testid="stChatMessage"] h3, [data-testid="stChatMessage"] h4,
+[data-testid="stChatMessage"] [data-testid="stMarkdownContainer"],
+[data-testid="stChatMessage"] [data-testid="stMarkdownContainer"] * {
+  color: var(--ink) !important; }
+[data-testid="stChatMessage"]:has([data-testid="stChatMessageAvatarUser"]) p,
+[data-testid="stChatMessage"]:has([data-testid="chatAvatarIcon-user"]) p { color: #16313B !important; }
 [data-testid="stChatMessageAvatarAssistant"], [data-testid="stChatMessageAvatarUser"],
 [data-testid="chatAvatarIcon-assistant"], [data-testid="chatAvatarIcon-user"] {
   background: var(--surface); border: 2px solid var(--line); border-radius: 50%; }
@@ -216,11 +225,12 @@ div[class*="st-key-chip_"] button { justify-content: flex-start; text-align: lef
 .side-label { font-weight: 800; font-size: .74rem; letter-spacing: .1em; color: var(--muted); margin-top: 6px; }
 .side-foot { font-weight: 700; font-size: .8rem; color: var(--muted); text-align: center; margin-top: 4px; }
 
-/* Menu topik */
+/* Menu topik: ringkas, seragam, dan tidak membuat sidebar terlalu panjang */
 div[class*="st-key-nav"] button { justify-content: flex-start; background: var(--chip-bg);
-  color: var(--ink); border: 1px solid var(--chip-line); border-bottom-width: 1px;
-  border-radius: 15px; min-height: 48px; padding: 5px 12px; box-shadow: none; }
-div[class*="st-key-nav"] button p { text-align: left; font-weight: 800; font-size: .94rem; line-height: 1.2; }
+  color: var(--ink); border: 1px solid var(--chip-line); border-bottom-width: 3px;
+  border-radius: 14px; min-height: 54px; padding: 7px 9px; box-shadow: none; }
+div[class*="st-key-nav"] button p { text-align: left; white-space: normal; font-weight: 800;
+  font-size: .84rem; line-height: 1.15; }
 div[class*="st-key-nav"] button:hover { background: var(--surface); border-color: var(--accent); color: var(--ink); }
 div[class*="st-key-navon_"] button { background: var(--accent-soft); border-color: var(--accent);
   box-shadow: 0 3px 0 var(--accent-d); }
@@ -349,13 +359,15 @@ with st.sidebar:
         unsafe_allow_html=True,
     )
 
-    # Menu topik: klik untuk langsung bertanya.
+    # Menu topik dibuat dua kolom agar sidebar lebih pendek dan rapi.
+    nav_cols = st.columns(2, gap="small")
     for i, (emoji, label, question) in enumerate(TOPICS):
         key = f"navon_{i}" if st.session_state.topic == i else f"nav_{i}"
-        if st.button(f"{emoji}  {label}", key=key):
-            st.session_state.topic = i
-            st.session_state.pending = question
-            st.rerun()
+        with nav_cols[i % 2]:
+            if st.button(f"{emoji}  {label}", key=key, use_container_width=True):
+                st.session_state.topic = i
+                st.session_state.pending = question
+                st.rerun()
 
     st.markdown('<div class="side-label">🎨 TAMPILAN</div>', unsafe_allow_html=True)
     theme_cols = st.columns(2, gap="small")
@@ -367,6 +379,14 @@ with st.sidebar:
             st.rerun()
 
     st.markdown('<div class="side-divider"></div>', unsafe_allow_html=True)
+    with st.expander("🎵 Musik belajar gratis"):
+        st.markdown(
+            "Putar musik lo-fi sambil belajar. Pilih lagu di Pixabay, lalu tekan **Free Download** "
+            "jika ingin menyimpan lagu. Musik Pixabay dapat digunakan gratis sesuai ketentuan lisensinya. "
+            "Jangan mengunggah ulang file musik sebagai karya milik sendiri.\n\n"
+            "[🎧 Dengarkan / pilih musik lo-fi di Pixabay](https://pixabay.com/music/search/lofi%20study/)"
+        )
+
     with st.expander("ℹ️ Tentang PyBuddy"):
         st.markdown(
             "**Untuk siapa?** Mahasiswa dan pelajar pemula yang baru belajar Python "
