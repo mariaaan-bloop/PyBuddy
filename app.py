@@ -39,60 +39,65 @@ TOPICS = [
 
 # Contoh pertanyaan di layar sambutan (berguna saat sidebar tertutup di HP)
 QUICK_STARTS = [
-    "Apa bedanya list dan tuple?",
-    "Jelaskan perulangan for dengan analogi",
-    "Kenapa muncul IndentationError?",
-    "Beri aku latihan soal tentang if-else",
+    ("📦", "Apa bedanya list dan tuple?"),
+    ("🔁", "Jelaskan perulangan for dengan analogi"),
+    ("🐞", "Kenapa muncul IndentationError?"),
+    ("📝", "Beri aku latihan soal tentang if-else"),
 ]
 
 # ---------------------------------------------------------------
 # TEMA
 # ---------------------------------------------------------------
+# Palet mengikuti warna logo Python (biru dan kuning).
 THEMES = {
     "light": {
-        "label": "☀️  Terang",
+        "icon": "☀️",
+        "name": "Terang",
         "scheme": "light",
         "vars": {
-            "bg": "#FFFFFF", "bg_solid": "#FFFFFF", "surface": "#FFFFFF",
-            "soft": "#F7F7F7", "side_bg": "#FBFCFA", "line": "#E5E5E5",
-            "ink": "#3C3C3C", "muted": "#777777",
-            "accent": "#58CC02", "accent_d": "#58A700", "accent_soft": "#E6F7D6",
-            "link": "#1899D6", "chip_bg": "#F6F9F4", "chip_line": "#DCE6D6",
-            "user_bg": "#DDF4FF", "user_line": "#84D8FF",
-            "hero_1": "#6BD60A", "hero_2": "#2DB84C", "code_ink": "#58A700",
+            "bg": "#F5F7FB", "bg_solid": "#F5F7FB", "surface": "#FFFFFF",
+            "soft": "#EDF1F8", "side_bg": "#FFFFFF", "line": "#DDE4F0",
+            "ink": "#16233F", "muted": "#5D6C89",
+            "accent": "#3776AB", "accent_d": "#2A5C8A", "accent_soft": "#E4EEF8",
+            "on_accent": "#FFFFFF", "hl": "#FFD43B", "danger": "#D13F3F",
+            "user_bg": "#E4EEF8", "user_line": "#B9D3EC",
+            "hero_1": "#3F82BD", "hero_2": "#244E7A", "code_ink": "#2A5C8A",
+            "term_bg": "#10203A", "shadow": "rgba(36,78,122,.45)",
         },
         "extra": "",
     },
     "dark": {
-        "label": "🌙  Gelap",
+        "icon": "🌙",
+        "name": "Gelap",
         "scheme": "dark",
         "vars": {
-            "bg": "#131F24", "bg_solid": "#131F24", "surface": "#1B2B32",
-            "soft": "#202F36", "side_bg": "#0F191D", "line": "#2E414B",
-            "ink": "#E8F0F3", "muted": "#9DB0B9",
-            "accent": "#58CC02", "accent_d": "#46A302", "accent_soft": "#1F3B22",
-            "link": "#49C0F8", "chip_bg": "#1B2B32", "chip_line": "#2E414B",
-            "user_bg": "#17394B", "user_line": "#2A6E92",
-            "hero_1": "#4CB800", "hero_2": "#1E8F4E", "code_ink": "#8EE05A",
+            "bg": "#0D1626", "bg_solid": "#0D1626", "surface": "#15223A",
+            "soft": "#1B2A45", "side_bg": "#0A1220", "line": "#2A3B5C",
+            "ink": "#E8EEFA", "muted": "#9FB0CE",
+            "accent": "#6AAEE6", "accent_d": "#4A8CC6", "accent_soft": "#1D3556",
+            "on_accent": "#0B1424", "hl": "#FFD43B", "danger": "#FF8585",
+            "user_bg": "#1D3556", "user_line": "#3B6AA0",
+            "hero_1": "#2D6AA3", "hero_2": "#17365C", "code_ink": "#FFD966",
+            "term_bg": "#08101D", "shadow": "rgba(0,0,0,.55)",
         },
         "extra": """
-[data-testid="stCode"] pre, [data-testid="stCode"] code, [data-testid="stCode"] span
-  { color: #E8F0F3 !important; }
-[data-testid="stAlert"] p { color: #E8F0F3; }
+[data-testid="stAlert"] p { color: #E8EEFA; }
 """,
     },
     "sunset": {
-        "label": "🌇  Senja",
+        "icon": "🌇",
+        "name": "Senja",
         "scheme": "light",
         "vars": {
-            "bg": "linear-gradient(180deg, #FFF4EA 0%, #FFE8EE 100%)",
-            "bg_solid": "#FFF1E8", "surface": "#FFFFFF",
-            "soft": "#FFF7F1", "side_bg": "#FFEBDD", "line": "#F5D5C0",
-            "ink": "#4A2E2A", "muted": "#9A6F5E",
-            "accent": "#FF7A45", "accent_d": "#D95B28", "accent_soft": "#FFE2CF",
-            "link": "#D95B28", "chip_bg": "#FFF6EE", "chip_line": "#F5D5C0",
-            "user_bg": "#FFE2CF", "user_line": "#FFB48A",
-            "hero_1": "#FF9A5A", "hero_2": "#FF5E7E", "code_ink": "#D95B28",
+            "bg": "linear-gradient(180deg, #FFF4EA 0%, #FFE6EE 100%)",
+            "bg_solid": "#FFF0E8", "surface": "#FFFFFF",
+            "soft": "#FFF5EE", "side_bg": "#FFEFE3", "line": "#F3D3C3",
+            "ink": "#3B1F2B", "muted": "#8A5A55",
+            "accent": "#D9480F", "accent_d": "#B03A0C", "accent_soft": "#FFE1D0",
+            "on_accent": "#FFFFFF", "hl": "#FFC857", "danger": "#C2255C",
+            "user_bg": "#FFE1D0", "user_line": "#F7B592",
+            "hero_1": "#E8590C", "hero_2": "#C2255C", "code_ink": "#B03A0C",
+            "term_bg": "#2B1824", "shadow": "rgba(194,37,92,.35)",
         },
         "extra": "",
     },
@@ -107,7 +112,10 @@ if theme not in THEMES:
 # ---------------------------------------------------------------
 # GAYA (CSS)
 # ---------------------------------------------------------------
-FONT_CSS = "@import url('https://fonts.googleapis.com/css2?family=Nunito:wght@600;700;800;900&display=swap');"
+FONT_CSS = (
+    "@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@500;600;700;800"
+    "&family=JetBrains+Mono:wght@500;700&display=swap');"
+)
 
 THEME_CSS = (
     ":root{color-scheme:" + THEMES[theme]["scheme"] + ";"
@@ -120,148 +128,178 @@ BASE_CSS = """
 .stApp { background: var(--bg); background-attachment: fixed; color: var(--ink); }
 [data-testid="stAppViewContainer"], [data-testid="stMain"] { background: transparent; }
 .stApp, .stApp p, .stApp li, .stApp label, .stApp h1, .stApp h2, .stApp h3,
-.stApp h4, .stApp button, .stApp input, .stApp textarea { font-family: 'Nunito', sans-serif; }
+.stApp h4, .stApp button, .stApp input, .stApp textarea { font-family: 'Plus Jakarta Sans', sans-serif; }
 :is([data-testid="stMain"], [data-testid="stSidebar"], [data-testid="stBottom"])
   :is(p, li, label, h1, h2, h3, h4) { color: var(--ink); }
-.stApp p, .stApp li { font-weight: 600; font-size: 1.02rem; line-height: 1.6; }
-.stApp h1, .stApp h2, .stApp h3, .stApp h4 { font-weight: 900; }
+.stApp p, .stApp li { font-weight: 500; font-size: 1rem; line-height: 1.65; }
+.stApp h1, .stApp h2, .stApp h3, .stApp h4 { font-weight: 800; letter-spacing: -.01em; }
+.stApp a { color: var(--accent); font-weight: 600; }
 footer, [data-testid="stToolbar"], [data-testid="stDecoration"] { display: none; }
 header[data-testid="stHeader"] { background: transparent; }
 [data-testid="stExpandSidebarButton"], [data-testid="stSidebarCollapseButton"] button { color: var(--ink); }
-.block-container { max-width: 780px; padding-top: 1.4rem; padding-bottom: 6rem; }
+.block-container { max-width: 800px; padding-top: 1.6rem; padding-bottom: 6rem; }
 
 /* ---------- Header aplikasi ---------- */
 .appbar { background: linear-gradient(135deg, var(--hero-1), var(--hero-2)); color: #fff;
-  border-radius: 24px; padding: 18px 22px; margin-bottom: 24px;
-  box-shadow: 0 5px 0 var(--accent-d); }
+  border-radius: 22px; padding: 20px 24px 18px; margin-bottom: 28px;
+  box-shadow: 0 14px 30px -18px var(--shadow); }
 .appbar-top { display: flex; align-items: center; justify-content: space-between;
   gap: 14px; flex-wrap: wrap; }
 .brand { display: flex; align-items: center; gap: 14px; }
-.logo { width: 56px; height: 56px; border-radius: 18px; background: rgba(255,255,255,.22);
-  border: 2px solid rgba(255,255,255,.4); display: grid; place-items: center; font-size: 2rem; }
-.app-name { font-weight: 900; font-size: 1.7rem; line-height: 1.1; letter-spacing: -.5px; }
-.app-tag { font-weight: 700; font-size: .92rem; opacity: .92; }
+.logo { width: 54px; height: 54px; border-radius: 16px; background: rgba(255,255,255,.18);
+  display: grid; place-items: center; font-size: 1.9rem; }
+.app-name { font-weight: 800; font-size: 1.6rem; line-height: 1.1; letter-spacing: -.02em; color: #fff; }
+.app-tag { font-weight: 500; font-size: .92rem; color: rgba(255,255,255,.85); margin-top: 2px; }
 .stats { display: flex; gap: 8px; flex-wrap: wrap; }
-.pill { font-weight: 900; font-size: .95rem; padding: 6px 13px; border-radius: 14px;
-  background: rgba(255,255,255,.2); border: 2px solid rgba(255,255,255,.35); white-space: nowrap; }
-.level-meta { display: flex; justify-content: space-between; font-weight: 800;
-  font-size: .88rem; margin: 16px 0 6px; }
-.track { height: 14px; background: rgba(0,0,0,.18); border-radius: 99px; overflow: hidden; }
-.fill { height: 100%; background: #fff; border-radius: 99px; min-width: 14px;
-  transition: width .5s ease; }
+.pill { font-weight: 700; font-size: .9rem; padding: 6px 12px; border-radius: 999px;
+  background: rgba(255,255,255,.16); color: #fff; white-space: nowrap; }
+.level-meta { display: flex; justify-content: space-between; font-weight: 700;
+  font-size: .85rem; margin: 20px 0 8px; color: #fff; }
+.track { height: 10px; background: rgba(0,0,0,.25); border-radius: 99px; overflow: hidden; }
+.fill { height: 100%; background: var(--hl); border-radius: 99px; transition: width .5s ease; }
 
-/* ---------- Maskot + gelembung bicara ---------- */
-.hero { display: flex; align-items: center; gap: 18px; margin: 8px 0 24px; }
-.mascot { font-size: 5.2rem; line-height: 1; animation: bob 2.4s ease-in-out infinite; }
-@keyframes bob { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-8px); } }
-.bubble { position: relative; background: var(--surface); border: 2px solid var(--line);
-  border-radius: 18px; padding: 14px 18px; font-weight: 800; font-size: 1.15rem; color: var(--ink); }
-.bubble::before { content: ""; position: absolute; left: -12px; top: 50%; margin-top: -10px;
-  border: 10px solid transparent; border-right-color: var(--line); border-left: 0; }
-.bubble::after { content: ""; position: absolute; left: -9px; top: 50%; margin-top: -8px;
-  border: 8px solid transparent; border-right-color: var(--surface); border-left: 0; }
-.hint { font-weight: 800; color: var(--muted); margin: 0 0 10px; }
+/* ---------- Layar sambutan: terminal Python ---------- */
+.hero { display: flex; align-items: center; gap: 18px; margin: 4px 0 26px; }
+.mascot { flex: none; width: 84px; height: 84px; border-radius: 24px; display: grid;
+  place-items: center; font-size: 3rem; background: var(--surface); border: 1px solid var(--line);
+  box-shadow: 0 10px 24px -16px var(--shadow); }
+.term { flex: 1; min-width: 0; background: var(--term-bg); border-radius: 16px; overflow: hidden;
+  border: 1px solid rgba(255,255,255,.08); box-shadow: 0 14px 30px -18px var(--shadow); }
+.term-bar { display: flex; align-items: center; gap: 6px; padding: 9px 14px;
+  background: rgba(255,255,255,.05); }
+.dot { width: 10px; height: 10px; border-radius: 50%; display: inline-block; }
+.dot.r { background: #FF6B6B; } .dot.y { background: #FFD43B; } .dot.g { background: #51CF66; }
+.term-bar .file { margin-left: 8px; font: 600 .75rem 'JetBrains Mono', monospace; color: #8FA2C4; }
+.term-body { padding: 14px 18px 16px; font-family: 'JetBrains Mono', monospace; font-size: .9rem;
+  line-height: 1.75; color: #E8EEF9; white-space: pre-wrap; word-break: break-word; }
+.term-body .pr { color: #7488AD; }
+.term-body .fn { color: #FFD43B; font-weight: 700; }
+.term-body .st { color: #8EE0A5; }
+.cursor { display: inline-block; width: .55em; height: 1.05em; background: var(--hl);
+  vertical-align: -.18em; margin-left: 2px; animation: blink 1.1s steps(1) infinite; }
+@keyframes blink { 50% { opacity: 0; } }
+.hint { font-weight: 600; font-size: .92rem; color: var(--muted); margin: 0 0 12px; }
 
-/* ---------- Tombol 3D (area utama) ---------- */
+/* ---------- Tombol (area utama) ---------- */
+.stButton, [data-testid="stButton"] { width: 100%; }
 .stButton > button {
-  background: var(--surface); color: var(--link); font-weight: 800; font-size: 1rem;
-  border: 2px solid var(--line); border-bottom-width: 4px; border-radius: 16px;
-  padding: 10px 14px; min-height: 52px; width: 100%;
-  transition: transform .05s, background .15s, border-color .15s;
+  width: 100%; background: var(--surface); color: var(--ink); font-weight: 600; font-size: .98rem;
+  border: 1px solid var(--line); border-radius: 14px; padding: 10px 16px; min-height: 52px;
+  box-shadow: 0 1px 0 var(--line);
+  transition: border-color .15s, background .15s, transform .1s;
 }
-.stButton > button p { color: inherit; font-weight: inherit; margin: 0; }
-.stButton > button:hover { background: var(--soft); border-color: var(--line); color: var(--link); }
-.stButton > button:active { transform: translateY(2px); border-bottom-width: 2px; }
-.stButton > button:focus-visible { outline: 3px solid var(--user-line); outline-offset: 2px; }
-div[class*="st-key-chip_"] button { justify-content: flex-start; text-align: left; }
+.stButton > button p { color: inherit !important; font-weight: inherit; font-size: inherit;
+  margin: 0; line-height: 1.35; }
+.stButton > button:hover { background: var(--surface); border-color: var(--accent); color: var(--ink); }
+.stButton > button:active { transform: translateY(1px); }
+.stButton > button:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
 
-/* ---------- Gelembung chat: kontras aman di semua tema ---------- */
-[data-testid="stChatMessage"] { background: var(--surface) !important; border: 2px solid var(--line);
-  border-radius: 20px; padding: 14px 18px; margin-bottom: 14px; }
+/* Kartu contoh pertanyaan */
+div[class*="st-key-chip_"] button { justify-content: flex-start; text-align: left;
+  min-height: 64px; padding: 12px 16px; }
+div[class*="st-key-chip_"] button div { justify-content: flex-start; text-align: left; width: 100%; }
+div[class*="st-key-chip_"] button p { white-space: normal; }
+
+/* ---------- Gelembung chat ---------- */
+[data-testid="stChatMessage"] { background: var(--surface) !important; border: 1px solid var(--line);
+  border-radius: 16px; padding: 14px 18px; margin-bottom: 12px; }
 [data-testid="stChatMessage"]:has([data-testid="stChatMessageAvatarUser"]),
 [data-testid="stChatMessage"]:has([data-testid="chatAvatarIcon-user"]) {
   background: var(--user-bg) !important; border-color: var(--user-line); }
-/* Paksa teks di pesan mengikuti warna tema; ini memperbaiki tulisan hitam saat dark mode. */
-[data-testid="stChatMessage"] p, [data-testid="stChatMessage"] li,
-[data-testid="stChatMessage"] h1, [data-testid="stChatMessage"] h2,
-[data-testid="stChatMessage"] h3, [data-testid="stChatMessage"] h4,
-[data-testid="stChatMessage"] [data-testid="stMarkdownContainer"],
-[data-testid="stChatMessage"] [data-testid="stMarkdownContainer"] * {
+/* Teks pesan mengikuti warna tema (mencegah tulisan gelap di mode gelap). */
+[data-testid="stChatMessage"] :is(p, li, h1, h2, h3, h4, strong, em, td, th, blockquote, span.katex) {
   color: var(--ink) !important; }
-[data-testid="stChatMessage"]:has([data-testid="stChatMessageAvatarUser"]) p,
-[data-testid="stChatMessage"]:has([data-testid="chatAvatarIcon-user"]) p { color: #16313B !important; }
 [data-testid="stChatMessageAvatarAssistant"], [data-testid="stChatMessageAvatarUser"],
 [data-testid="chatAvatarIcon-assistant"], [data-testid="chatAvatarIcon-user"] {
-  background: var(--surface); border: 2px solid var(--line); border-radius: 50%; }
+  background: var(--surface); border: 1px solid var(--line); border-radius: 50%; }
 
 /* ---------- Kode ---------- */
 [data-testid="stCode"] pre, .stMarkdown pre { background: var(--soft) !important;
-  border: 2px solid var(--line); border-radius: 14px; }
+  border: 1px solid var(--line); border-radius: 12px; }
+[data-testid="stCode"] pre, [data-testid="stCode"] code, [data-testid="stCode"] code span,
+.stMarkdown pre, .stMarkdown pre code { font-family: 'JetBrains Mono', monospace;
+  font-size: .88rem; color: var(--ink) !important; }
 .stMarkdown :not(pre) > code { background: var(--soft); color: var(--code-ink);
-  border-radius: 8px; font-weight: 700; }
+  font-family: 'JetBrains Mono', monospace; font-size: .86em; font-weight: 700;
+  border-radius: 6px; padding: .1em .4em; }
 
 /* ---------- Kolom input ---------- */
 [data-testid="stBottom"] > div { background: var(--bg-solid); }
-[data-testid="stChatInput"] { background: var(--soft); border: 2px solid var(--line);
-  border-radius: 18px; }
-[data-testid="stChatInput"] > div, [data-testid="stChatInput"] textarea
-  { background: transparent; color: var(--ink); font-weight: 700; }
-[data-testid="stChatInput"]:focus-within { border-color: var(--accent); }
+[data-testid="stChatInput"] { background: var(--surface); border: 1px solid var(--line);
+  border-radius: 16px; box-shadow: 0 6px 20px -14px var(--shadow); }
+[data-testid="stChatInput"] > div { background: transparent !important; }
+[data-testid="stChatInput"] textarea { background: transparent; color: var(--ink) !important;
+  font-weight: 500; }
+[data-testid="stChatInput"] textarea::placeholder { color: var(--muted) !important; opacity: 1; }
+[data-testid="stChatInput"]:focus-within { border-color: var(--accent);
+  box-shadow: 0 0 0 3px var(--accent-soft); }
+[data-testid="stChatInputSubmitButton"] { background: var(--accent); color: var(--on-accent);
+  border-radius: 10px; }
+[data-testid="stChatInputSubmitButton"]:disabled { background: var(--soft); color: var(--muted); }
 
 /* ---------- Sidebar ---------- */
 [data-testid="stSidebar"] { background: var(--side-bg); border-right: 1px solid var(--line); }
-[data-testid="stSidebar"] [data-testid="stVerticalBlock"] { gap: .38rem; }
-[data-testid="stSidebar"] [data-testid="stMarkdownContainer"] p { margin-bottom: .25rem; }
-[data-testid="stSidebar"] [data-testid="stSidebarContent"] { padding: 1rem .85rem 1.25rem; }
-.side-brand { display: flex; align-items: center; gap: 12px; }
-.logo-sm { width: 42px; height: 42px; border-radius: 13px; font-size: 1.35rem;
+[data-testid="stSidebarHeader"] { padding: .6rem 1rem 0; min-height: 0; height: auto; }
+[data-testid="stSidebar"] [data-testid="stSidebarContent"] { padding: 0 1rem 1.4rem; }
+[data-testid="stSidebar"] [data-testid="stVerticalBlock"] { gap: .4rem; }
+[data-testid="stSidebar"] [data-testid="stElementContainer"],
+[data-testid="stSidebar"] [data-testid="stMarkdownContainer"] { overflow: visible; }
+
+.side-brand { display: flex; align-items: center; gap: 12px; padding: 4px 2px 14px; }
+.logo-sm { flex: none; width: 44px; height: 44px; border-radius: 13px; font-size: 1.4rem;
   background: linear-gradient(135deg, var(--hero-1), var(--hero-2)); display: grid;
-  place-items: center; box-shadow: 0 3px 0 var(--accent-d); }
-.side-name { font-weight: 900; font-size: 1.2rem; color: var(--ink); line-height: 1.1; }
-.side-sub { font-weight: 700; font-size: .82rem; color: var(--muted); }
-.side-divider { height: 1px; background: var(--line); margin: 9px 0 3px; }
-.side-title { font-weight: 900; font-size: 1.42rem; color: var(--ink); line-height: 1.2; }
-.side-desc { font-weight: 600; font-size: .95rem; color: var(--muted); line-height: 1.4; margin-top: -2px; }
-.side-label { font-weight: 800; font-size: .74rem; letter-spacing: .1em; color: var(--muted); margin-top: 6px; }
-.side-foot { font-weight: 700; font-size: .8rem; color: var(--muted); text-align: center; margin-top: 4px; }
+  place-items: center; }
+.side-name { font-weight: 800; font-size: 1.2rem; color: var(--ink); line-height: 1.15;
+  letter-spacing: -.01em; }
+.side-sub { font-weight: 500; font-size: .84rem; color: var(--muted); line-height: 1.3; }
+.side-label { display: block; font-weight: 700; font-size: .82rem; color: var(--muted);
+  line-height: 1.3; padding: 16px 4px 6px; }
+.side-divider { height: 1px; background: var(--line); margin: 14px 0 6px; }
+.side-foot { font-weight: 500; font-size: .8rem; color: var(--muted); text-align: center;
+  padding-top: 10px; }
 
-/* Menu topik: ringkas, seragam, dan tidak membuat sidebar terlalu panjang */
-div[class*="st-key-nav"] button { justify-content: flex-start; background: var(--chip-bg);
-  color: var(--ink); border: 1px solid var(--chip-line); border-bottom-width: 3px;
-  border-radius: 14px; min-height: 54px; padding: 7px 9px; box-shadow: none; }
-div[class*="st-key-nav"] button p { text-align: left; white-space: normal; font-weight: 800;
-  font-size: .84rem; line-height: 1.15; }
-div[class*="st-key-nav"] button:hover { background: var(--surface); border-color: var(--accent); color: var(--ink); }
-div[class*="st-key-navon_"] button { background: var(--accent-soft); border-color: var(--accent);
-  box-shadow: 0 3px 0 var(--accent-d); }
+/* Daftar topik: satu kolom, satu baris per topik, tinggi seragam */
+div[class*="st-key-nav"] button { justify-content: flex-start; background: transparent;
+  color: var(--ink); border: 1px solid transparent; border-radius: 12px; min-height: 44px;
+  padding: 6px 12px; box-shadow: none; }
+div[class*="st-key-nav"] button div { justify-content: flex-start; text-align: left; width: 100%; }
+div[class*="st-key-nav"] button p { text-align: left; white-space: nowrap; font-weight: 600;
+  font-size: .95rem; }
+div[class*="st-key-nav"] button:hover { background: var(--soft); border-color: transparent; color: var(--ink); }
+div[class*="st-key-navon_"] button { background: var(--accent-soft); box-shadow: inset 3px 0 0 var(--accent); }
+div[class*="st-key-navon_"] button p { font-weight: 800; }
 
-/* Pilihan tampilan */
+/* Pilihan tampilan: tiga ikon sejajar */
 div[class*="st-key-theme"] button { justify-content: center; background: var(--surface);
-  color: var(--ink); border: 1px solid var(--line); border-bottom-width: 1px;
-  border-radius: 13px; min-height: 42px; padding: 4px 7px; }
-div[class*="st-key-theme"] button p { font-size: .85rem; font-weight: 800; }
-div[class*="st-key-theme"] button:hover { background: var(--soft); border-color: var(--accent); color: var(--ink); }
+  border: 1px solid var(--line); border-radius: 12px; min-height: 44px; padding: 4px;
+  box-shadow: none; }
+div[class*="st-key-theme"] button p { font-size: 1.2rem; line-height: 1; }
+div[class*="st-key-theme"] button:hover { background: var(--soft); border-color: var(--accent); }
 div[class*="st-key-themeon_"] button { background: var(--accent-soft); border-color: var(--accent);
-  box-shadow: 0 3px 0 var(--accent-d); }
+  box-shadow: 0 0 0 1px var(--accent); }
 
 /* Tombol hapus */
-div.st-key-reset button { background: #FF4B4B; color: #fff; border-color: #EA2B2B;
-  justify-content: center; font-weight: 900; }
-div.st-key-reset button:hover { background: #ff6161; color: #fff; border-color: #EA2B2B; }
+div.st-key-reset button { background: transparent; color: var(--danger);
+  border: 1px solid var(--danger); justify-content: center; font-weight: 700;
+  min-height: 44px; box-shadow: none; }
+div.st-key-reset button:hover { background: var(--danger); color: var(--on-accent);
+  border-color: var(--danger); }
 
-[data-testid="stExpander"] details { background: var(--surface); border: 1px solid var(--line);
-  border-radius: 16px; }
-[data-testid="stExpander"] summary, [data-testid="stExpander"] summary p
-  { color: var(--ink); font-weight: 800; }
+[data-testid="stSidebar"] [data-testid="stExpander"] details { background: var(--surface);
+  border: 1px solid var(--line); border-radius: 12px; }
+[data-testid="stSidebar"] [data-testid="stExpander"] summary { padding: .55rem .8rem; }
+[data-testid="stSidebar"] [data-testid="stExpander"] summary p { color: var(--ink);
+  font-weight: 700; font-size: .93rem; }
+[data-testid="stSidebar"] [data-testid="stExpanderDetails"] p { font-size: .9rem; line-height: 1.55; }
 
 @media (max-width: 600px) {
-  .hero { flex-direction: column; text-align: center; }
-  .bubble::before, .bubble::after { display: none; }
-  .app-name { font-size: 1.45rem; }
-  .logo { width: 48px; height: 48px; font-size: 1.7rem; }
+  .hero { flex-direction: column; align-items: stretch; }
+  .mascot { width: 68px; height: 68px; font-size: 2.4rem; border-radius: 20px; }
+  .app-name { font-size: 1.4rem; }
+  .logo { width: 46px; height: 46px; font-size: 1.6rem; }
 }
 @media (prefers-reduced-motion: reduce) {
-  .mascot { animation: none; }
+  .cursor { animation: none; }
   .fill, .stButton > button { transition: none; }
 }
 """
@@ -289,7 +327,7 @@ def is_busy(error):
     return any(k in text for k in ("503", "429", "502", "504", "RATE LIMIT", "OVERLOADED", "TEMPORARILY UNAVAILABLE"))
 
 
-def stream_reply(prompt):
+def stream_reply():
     """Kirim riwayat chat ke Groq dan stream jawaban."""
     client = st.session_state.groq_client
     chat_messages = [{"role": "system", "content": SYSTEM_PROMPT}]
@@ -322,12 +360,35 @@ def stream_reply(prompt):
         raise last_error
 
 
+def hero_html(body):
+    """Layar sambutan: maskot + jendela terminal Python."""
+    return (
+        '<div class="hero"><div class="mascot">🐍</div><div class="term">'
+        '<div class="term-bar"><span class="dot r"></span><span class="dot y"></span>'
+        '<span class="dot g"></span><span class="file">pybuddy.py</span></div>'
+        f'<div class="term-body">{body}</div></div></div>'
+    )
+
+
+def py_line(fn, arg):
+    return (
+        f'<div><span class="pr">&gt;&gt;&gt;</span> <span class="fn">{fn}</span>'
+        f'(<span class="st">"{arg}"</span>)</div>'
+    )
+
+
+def py_out(text, cursor=False):
+    return f'<div>{text}{"<span class=cursor></span>" if cursor else ""}</div>'
+
+
 def render_header(slot):
     """Gambar header aplikasi (logo, statistik, progres level) ke slot."""
     xp = st.session_state.xp
     level = xp // XP_PER_LEVEL + 1
     into_level = xp % XP_PER_LEVEL
     title = LEVEL_TITLES[min(level - 1, len(LEVEL_TITLES) - 1)]
+    pct = into_level / XP_PER_LEVEL * 100
+    min_w = 12 if pct else 0
     slot.markdown(
         f"""<div class="appbar">
 <div class="appbar-top">
@@ -338,7 +399,7 @@ def render_header(slot):
 <span class="pill">⭐ {xp} XP</span>
 </div></div>
 <div class="level-meta"><span>🏆 Level {level} · {title}</span><span>{into_level}/{XP_PER_LEVEL} XP</span></div>
-<div class="track"><div class="fill" style="width:{into_level / XP_PER_LEVEL * 100}%"></div></div>
+<div class="track"><div class="fill" style="width:{pct}%;min-width:{min_w}px"></div></div>
 </div>""",
         unsafe_allow_html=True,
     )
@@ -352,29 +413,23 @@ st.session_state.setdefault("topic", None)
 with st.sidebar:
     st.markdown(
         """<div class="side-brand"><div class="logo-sm">🐍</div>
-<div><div class="side-name">PyBuddy</div><div class="side-sub">Teman belajar Python</div></div></div>
-<div class="side-divider"></div>
-<div class="side-title">✨ Jelajahi</div>
-<div class="side-desc">Pilih topik atau tanyakan sendiri</div>""",
+<div><div class="side-name">PyBuddy</div><div class="side-sub">Teman belajar Python</div></div></div>""",
         unsafe_allow_html=True,
     )
 
-    # Menu topik dibuat dua kolom agar sidebar lebih pendek dan rapi.
-    nav_cols = st.columns(2, gap="small")
+    st.markdown('<div class="side-label">Pilih topik belajar</div>', unsafe_allow_html=True)
     for i, (emoji, label, question) in enumerate(TOPICS):
         key = f"navon_{i}" if st.session_state.topic == i else f"nav_{i}"
-        with nav_cols[i % 2]:
-            if st.button(f"{emoji}  {label}", key=key, use_container_width=True):
-                st.session_state.topic = i
-                st.session_state.pending = question
-                st.rerun()
+        if st.button(f"{emoji}  {label}", key=key):
+            st.session_state.topic = i
+            st.session_state.pending = question
+            st.rerun()
 
-    st.markdown('<div class="side-label">🎨 TAMPILAN</div>', unsafe_allow_html=True)
-    theme_cols = st.columns(2, gap="small")
-    theme_labels = {"light": "☀️ Terang", "dark": "🌙 Gelap", "sunset": "🌇 Senja"}
-    for i, (name, t) in enumerate(THEMES.items()):
+    st.markdown('<div class="side-label">Tampilan</div>', unsafe_allow_html=True)
+    theme_cols = st.columns(3, gap="small")
+    for col, (name, t) in zip(theme_cols, THEMES.items()):
         key = f"themeon_{name}" if name == theme else f"theme_{name}"
-        if theme_cols[i % 2].button(theme_labels[name], key=key, use_container_width=True):
+        if col.button(t["icon"], key=key, help=t["name"]):
             st.session_state.theme = name
             st.rerun()
 
@@ -384,7 +439,7 @@ with st.sidebar:
             "Putar musik lo-fi sambil belajar. Pilih lagu di Pixabay, lalu tekan **Free Download** "
             "jika ingin menyimpan lagu. Musik Pixabay dapat digunakan gratis sesuai ketentuan lisensinya. "
             "Jangan mengunggah ulang file musik sebagai karya milik sendiri.\n\n"
-            "[🎧 Dengarkan / pilih musik lo-fi di Pixabay](https://pixabay.com/music/search/lofi%20study/)"
+            "[Dengarkan musik lo-fi di Pixabay](https://pixabay.com/music/search/lofi%20study/)"
         )
 
     with st.expander("ℹ️ Tentang PyBuddy"):
@@ -399,6 +454,7 @@ with st.sidebar:
     # Dibaca dari .streamlit/secrets.toml atau environment variable.
     groq_api_key = load_api_key()
 
+    st.markdown('<div class="side-divider"></div>', unsafe_allow_html=True)
     reset_button = st.button(
         "🗑️  Hapus percakapan",
         key="reset",
@@ -441,8 +497,10 @@ render_header(header_slot)
 
 if not groq_api_key:
     st.markdown(
-        """<div class="hero"><div class="mascot">🐍</div>
-<div class="bubble">Halo! Groq API key belum diatur, jadi aku belum bisa menjawab.</div></div>""",
+        hero_html(
+            py_line("print", "Groq API key belum diatur")
+            + py_out("Groq API key belum diatur, jadi aku belum bisa menjawab.", cursor=True)
+        ),
         unsafe_allow_html=True,
     )
     st.error(
@@ -456,14 +514,18 @@ pending = st.session_state.pop("pending", None)
 # Layar sambutan + contoh pertanyaan
 if not st.session_state.messages and not pending:
     st.markdown(
-        """<div class="hero"><div class="mascot">🐍</div>
-<div class="bubble">Hai, aku PyBuddy! Mau belajar apa hari ini?</div></div>
-<p class="hint">Mulai dari sini, atau pilih topik di menu samping:</p>""",
+        hero_html(
+            py_line("print", "Hai, aku PyBuddy!")
+            + py_out("Hai, aku PyBuddy!")
+            + py_line("input", "Mau belajar apa hari ini? ")
+            + py_out("Mau belajar apa hari ini? ", cursor=True)
+        )
+        + '<p class="hint">Coba salah satu pertanyaan ini, atau pilih topik di menu samping.</p>',
         unsafe_allow_html=True,
     )
-    cols = st.columns(2)
-    for i, text in enumerate(QUICK_STARTS):
-        if cols[i % 2].button(text, key=f"chip_{i}"):
+    cols = st.columns(2, gap="small")
+    for i, (icon, text) in enumerate(QUICK_STARTS):
+        if cols[i % 2].button(f"{icon}  {text}", key=f"chip_{i}"):
             st.session_state.pending = text
             st.rerun()
 
@@ -484,7 +546,7 @@ if prompt:
 
     with st.chat_message("assistant", avatar="🐍"):
         try:
-            reply = st.write_stream(stream_reply(prompt))
+            reply = st.write_stream(stream_reply())
             st.session_state.messages.append({"role": "assistant", "content": reply})
 
             # Beri XP setiap pertanyaan berhasil dijawab.
