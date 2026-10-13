@@ -1,10 +1,12 @@
+import os
+
 import streamlit as st
 from google import genai
 
 # ---------------------------------------------------------------
 # KONFIGURASI
 # ---------------------------------------------------------------
-MODEL = "gemini-2.5-flash"
+MODEL = "gemini-3.8-flash"
 
 SYSTEM_PROMPT = """Kamu adalah PyBuddy, asisten belajar Python yang ramah untuk
 mahasiswa dan pelajar pemula di Indonesia.
@@ -162,6 +164,15 @@ st.markdown(f"<style>{CSS}</style>", unsafe_allow_html=True)
 # ---------------------------------------------------------------
 # FUNGSI BANTU
 # ---------------------------------------------------------------
+def load_api_key():
+    """Ambil API key dari Streamlit Secrets, lalu environment variable."""
+    try:
+        key = st.secrets.get("GEMINI_API_KEY", "")
+    except Exception:
+        key = ""
+    return key or os.environ.get("GEMINI_API_KEY", "")
+
+
 def render_stats(slot):
     """Gambar bar statistik (jumlah tanya, XP, level) ke slot yang diberikan."""
     xp = st.session_state.xp
@@ -201,18 +212,9 @@ bingung saat bertemu konsep baru atau error.</p></div>
         unsafe_allow_html=True,
     )
 
-    # Ambil API key dari Streamlit Secrets saat deploy.
-    try:
-        saved_api_key = st.secrets.get("GEMINI_API_KEY", "")
-    except Exception:
-        saved_api_key = ""
-
-    google_api_key = st.text_input(
-        "Google AI API Key",
-        value=saved_api_key,
-        type="password",
-        help="Buat API key di https://aistudio.google.com/apikey",
-    )
+    # API key tidak ditampilkan di UI sama sekali.
+    # Dibaca dari .streamlit/secrets.toml atau environment variable.
+    google_api_key = load_api_key()
 
     reset_button = st.button(
         "Hapus percakapan",
@@ -268,10 +270,14 @@ render_stats(stats_slot)
 if not google_api_key:
     st.markdown(
         """<div class="hero"><div class="mascot">🐍</div>
-<div class="bubble">Halo! Masukkan API key di sidebar dulu, lalu kita mulai belajar Python bareng.</div></div>""",
+<div class="bubble">Halo! API key belum diatur, jadi aku belum bisa menjawab.</div></div>""",
         unsafe_allow_html=True,
     )
-    st.info("Buat key gratis di https://aistudio.google.com/apikey", icon="🗝️")
+    st.error(
+        "Tambahkan `GEMINI_API_KEY` di file `.streamlit/secrets.toml` "
+        "(atau di Secrets saat deploy), lalu jalankan ulang aplikasi.",
+        icon="🗝️",
+    )
     st.stop()
 
 pending = st.session_state.pop("pending", None)
