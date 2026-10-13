@@ -56,8 +56,8 @@ THEMES = {
             "ink": "#182642", "muted": "#647493",
             "accent": "#2B6CB0", "accent_d": "#2C5282", "accent_soft": "#EBF8FF",
             "on_accent": "#FFFFFF", "hl": "#ECC94B", "danger": "#E53E3E",
-            # Warna Bubble Chat User (Biru kontras)
-            "user_bg": "#DCEEFE", "user_line": "#90CDF4", "user_ink": "#1A365D",
+            # Warna Bubble Chat User (Biru terang yang jelas beda dari bot)
+            "user_bg": "#E1EFFE", "user_line": "#B4D6FC", "user_ink": "#1E3A8A",
             "hero_1": "#3182CE", "hero_2": "#2B6CB0", "code_ink": "#2C5282",
             "term_bg": "#1A202C", "shadow": "rgba(49,130,206,.2)",
         },
@@ -74,7 +74,7 @@ THEMES = {
             "accent": "#4FD1C5", "accent_d": "#319795", "accent_soft": "#1D3B48",
             "on_accent": "#0B132B", "hl": "#F6E05E", "danger": "#FEB2B2",
             # Warna Bubble Chat User (Teal Gelap)
-            "user_bg": "#134E4A", "user_line": "#2DD4BF", "user_ink": "#CCFBF1",
+            "user_bg": "#114B5F", "user_line": "#1A657A", "user_ink": "#E0FBFC",
             "hero_1": "#2B6CB0", "hero_2": "#1A365D", "code_ink": "#F6E05E",
             "term_bg": "#070B16", "shadow": "rgba(0,0,0,.4)",
         },
@@ -127,7 +127,7 @@ THEME_CSS = (
 )
 
 BASE_CSS = """
-/* Sembunyikan tombol expand/collapse sidebar agar selalu terbuka permanen */
+/* Sembunyikan tombol expand/collapse sidebar bawaan */
 [data-testid="stSidebarCollapseButton"],
 [data-testid="stExpandSidebarButton"] {
     display: none !important;
@@ -204,7 +204,7 @@ div[class*="st-key-chip_"] button div { justify-content: flex-start; text-align:
 div[class*="st-key-chip_"] button p { white-space: normal; }
 
 /* ---------- Kustomisasi Bubble Chat (Bot vs User) ---------- */
-/* Style Default (Untuk Pesan Asisten / Bot) */
+/* Style Default (Asisten / Bot) */
 [data-testid="stChatMessage"] { 
   background: var(--surface) !important; 
   border: 1px solid var(--line);
@@ -216,24 +216,16 @@ div[class*="st-key-chip_"] button p { white-space: normal; }
   color: var(--ink) !important; 
 }
 
-/* Style Khusus Pesan Pengguna (User) Berdasarkan Atribut Selector */
-[data-testid="stChatMessage"][data-testid*="user"],
-div.stChatFloatingInputContainer + div [data-testid="stChatMessage"]:nth-child(odd),
-[data-testid="stChatMessage"]:has(svg[aria-label*="user" i]),
-[data-testid="stChatMessage"]:has([class*="user" i]) {
-  /* Di-override menggunakan pengecekan class stream chat message row */
-}
-
-/* Penanganan spesifik untuk baris chat user di Streamlit */
-div[data-testid="stChatMessage"]:not(:has(div[aria-label*="assistant" i], img[alt*="assistant" i])) {
-  /* Fallback aman */
-}
-
-/* Cara paling akurat mendeteksi container chat user lewat atribut DOM terbaru */
+/* Style Khusus Pengguna (User) - Menargetkan elemen avatar atau atribut user */
+[data-testid="stChatMessage"]:has([data-testid="chatAvatarIcon-user"]),
+[data-testid="stChatMessage"]:has([data-testid="stChatMessageAvatarUser"]),
 [data-testid="stChatMessage"]:has(div[data-testid="stChatMessageAvatarUser"]) {
   background: var(--user-bg) !important;
   border: 1px solid var(--user-line) !important;
 }
+
+[data-testid="stChatMessage"]:has([data-testid="chatAvatarIcon-user"]) :is(p, li, h1, h2, h3, h4, strong, em, td, th, blockquote, span.katex),
+[data-testid="stChatMessage"]:has([data-testid="stChatMessageAvatarUser"]) :is(p, li, h1, h2, h3, h4, strong, em, td, th, blockquote, span.katex),
 [data-testid="stChatMessage"]:has(div[data-testid="stChatMessageAvatarUser"]) :is(p, li, h1, h2, h3, h4, strong, em, td, th, blockquote, span.katex) {
   color: var(--user-ink) !important;
 }
@@ -266,13 +258,13 @@ div[data-testid="stChatMessage"]:not(:has(div[aria-label*="assistant" i], img[al
   border-radius: 10px; }
 [data-testid="stChatInputSubmitButton"]:disabled { background: var(--soft); color: var(--muted); }
 
-/* ---------- Sidebar Style ---------- */
+/* ---------- Sidebar & Navbar Perbaikan Rapi Bawah ---------- */
 [data-testid="stSidebar"] { background: var(--side-bg); border-right: 1px solid var(--line); }
 [data-testid="stSidebarHeader"] { padding: .6rem 1rem 0; min-height: 0; height: auto; }
-[data-testid="stSidebar"] [data-testid="stSidebarContent"] { padding: 0 1rem 1.4rem; }
-[data-testid="stSidebar"] [data-testid="stVerticalBlock"] { gap: .4rem; }
+[data-testid="stSidebar"] [data-testid="stSidebarContent"] { padding: 0 1rem 1.4rem; display: flex; flex-direction: column; }
+[data-testid="stSidebar"] [data-testid="stVerticalBlock"] { gap: .4rem; width: 100%; }
 [data-testid="stSidebar"] [data-testid="stElementContainer"],
-[data-testid="stSidebar"] [data-testid="stMarkdownContainer"] { overflow: visible; }
+[data-testid="stSidebar"] [data-testid="stMarkdownContainer"] { overflow: visible; width: 100%; }
 
 .side-brand { display: flex; align-items: center; gap: 12px; padding: 4px 2px 14px; }
 .logo-sm { flex: none; width: 44px; height: 44px; border-radius: 13px; font-size: 1.4rem;
@@ -283,37 +275,39 @@ div[data-testid="stChatMessage"]:not(:has(div[aria-label*="assistant" i], img[al
 .side-sub { font-weight: 500; font-size: .84rem; color: var(--muted); line-height: 1.3; }
 .side-label { display: block; font-weight: 700; font-size: .82rem; color: var(--muted);
   line-height: 1.3; padding: 16px 4px 6px; }
-.side-divider { height: 1px; background: var(--line); margin: 14px 0 6px; }
+.side-divider { height: 1px; background: var(--line); margin: 14px 0 6px; width: 100%; }
 .side-foot { font-weight: 500; font-size: .8rem; color: var(--muted); text-align: center;
-  padding-top: 10px; }
+  padding-top: 10px; width: 100%; }
 
 div[class*="st-key-nav"] button { justify-content: flex-start; background: transparent;
   color: var(--ink); border: 1px solid transparent; border-radius: 12px; min-height: 44px;
-  padding: 6px 12px; box-shadow: none; }
+  padding: 6px 12px; box-shadow: none; width: 100%; }
 div[class*="st-key-nav"] button div { justify-content: flex-start; text-align: left; width: 100%; }
 div[class*="st-key-nav"] button p { text-align: left; white-space: nowrap; font-weight: 600;
   font-size: .95rem; }
 div[class*="st-key-nav"] button:hover { background: var(--soft); border-color: transparent; color: var(--ink); }
-div[class*="st-key-navon_"] button { background: var(--accent-soft); box-shadow: inset 3px 0 0 var(--accent); }
+div[class*="st-key-navon_"] button { background: var(--accent-soft); box-shadow: inset 3px 0 0 var(--accent); width: 100%; }
 div[class*="st-key-navon_"] button p { font-weight: 800; }
 
 div[class*="st-key-theme"] button { justify-content: center; background: var(--surface);
   border: 1px solid var(--line); border-radius: 12px; min-height: 44px; padding: 4px;
-  box-shadow: none; }
+  box-shadow: none; width: 100%; }
 div[class*="st-key-theme"] button p { font-size: 1.2rem; line-height: 1; }
 div[class*="st-key-theme"] button:hover { background: var(--soft); border-color: var(--accent); }
 div[class*="st-key-themeon_"] button { background: var(--accent-soft); border-color: var(--accent);
-  box-shadow: 0 0 0 1px var(--accent); }
+  box-shadow: 0 0 0 1px var(--accent); width: 100%; }
 
+/* Memperbaiki tombol Hapus Percakapan agar rapi pas di sidebar */
 div.st-key-reset button { background: transparent; color: var(--danger);
   border: 1px solid var(--danger); justify-content: center; font-weight: 700;
-  min-height: 44px; box-shadow: none; }
+  min-height: 44px; box-shadow: none; width: 100%; border-radius: 12px; }
 div.st-key-reset button:hover { background: var(--danger); color: var(--on-accent);
   border-color: var(--danger); }
 
+[data-testid="stSidebar"] [data-testid="stExpander"] { width: 100%; }
 [data-testid="stSidebar"] [data-testid="stExpander"] details { background: var(--surface);
-  border: 1px solid var(--line); border-radius: 12px; }
-[data-testid="stSidebar"] [data-testid="stExpander"] summary { padding: .55rem .8rem; }
+  border: 1px solid var(--line); border-radius: 12px; width: 100%; }
+[data-testid="stSidebar"] [data-testid="stExpander"] summary { padding: .55rem .8rem; width: 100%; }
 [data-testid="stSidebar"] [data-testid="stExpander"] summary p { color: var(--ink);
   font-weight: 700; font-size: .93rem; }
 [data-testid="stSidebar"] [data-testid="stExpanderDetails"] p { font-size: .9rem; line-height: 1.55; }
