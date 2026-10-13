@@ -43,7 +43,7 @@ QUICK_STARTS = [
 ]
 
 # ---------------------------------------------------------------
-# TEMA (DIPERBAIKI & DISEMPURNAKAN)
+# TEMA & WARNA BUBBLE CHAT
 # ---------------------------------------------------------------
 THEMES = {
     "light": {
@@ -56,7 +56,8 @@ THEMES = {
             "ink": "#182642", "muted": "#647493",
             "accent": "#2B6CB0", "accent_d": "#2C5282", "accent_soft": "#EBF8FF",
             "on_accent": "#FFFFFF", "hl": "#ECC94B", "danger": "#E53E3E",
-            "user_bg": "#EBF8FF", "user_line": "#BEE3F8",
+            # Warna Bubble Chat User (Biru kontras)
+            "user_bg": "#DCEEFE", "user_line": "#90CDF4", "user_ink": "#1A365D",
             "hero_1": "#3182CE", "hero_2": "#2B6CB0", "code_ink": "#2C5282",
             "term_bg": "#1A202C", "shadow": "rgba(49,130,206,.2)",
         },
@@ -72,7 +73,8 @@ THEMES = {
             "ink": "#F0F4F8", "muted": "#9FB3C8",
             "accent": "#4FD1C5", "accent_d": "#319795", "accent_soft": "#1D3B48",
             "on_accent": "#0B132B", "hl": "#F6E05E", "danger": "#FEB2B2",
-            "user_bg": "#1E3A4C", "user_line": "#2C5282",
+            # Warna Bubble Chat User (Teal Gelap)
+            "user_bg": "#134E4A", "user_line": "#2DD4BF", "user_ink": "#CCFBF1",
             "hero_1": "#2B6CB0", "hero_2": "#1A365D", "code_ink": "#F6E05E",
             "term_bg": "#070B16", "shadow": "rgba(0,0,0,.4)",
         },
@@ -90,7 +92,8 @@ THEMES = {
             "ink": "#2D3748", "muted": "#7B341E",
             "accent": "#DD6B20", "accent_d": "#C05621", "accent_soft": "#FFFAF0",
             "on_accent": "#FFFFFF", "hl": "#D69E2E", "danger": "#E53E3E",
-            "user_bg": "#FEEBC8", "user_line": "#FBD38D",
+            # Warna Bubble Chat User (Krem Oranye Hangat)
+            "user_bg": "#FEEBC8", "user_line": "#FBD38D", "user_ink": "#7B341E",
             "hero_1": "#ED8936", "hero_2": "#DD6B20", "code_ink": "#C05621",
             "term_bg": "#2C1A1D", "shadow": "rgba(221,107,32,.2)",
         },
@@ -98,7 +101,12 @@ THEMES = {
     },
 }
 
-st.set_page_config(page_title="PyBuddy", page_icon="🐍", layout="centered")
+st.set_page_config(
+    page_title="PyBuddy", 
+    page_icon="🐍", 
+    layout="centered",
+    initial_sidebar_state="expanded"
+)
 
 theme = st.session_state.setdefault("theme", "light")
 if theme not in THEMES:
@@ -119,6 +127,12 @@ THEME_CSS = (
 )
 
 BASE_CSS = """
+/* Sembunyikan tombol expand/collapse sidebar agar selalu terbuka permanen */
+[data-testid="stSidebarCollapseButton"],
+[data-testid="stExpandSidebarButton"] {
+    display: none !important;
+}
+
 .stApp { background: var(--bg); background-attachment: fixed; color: var(--ink); }
 [data-testid="stAppViewContainer"], [data-testid="stMain"] { background: transparent; }
 .stApp, .stApp p, .stApp li, .stApp label, .stApp h1, .stApp h2, .stApp h3,
@@ -130,7 +144,6 @@ BASE_CSS = """
 .stApp a { color: var(--accent); font-weight: 600; }
 footer, [data-testid="stToolbar"], [data-testid="stDecoration"] { display: none; }
 header[data-testid="stHeader"] { background: transparent; }
-[data-testid="stExpandSidebarButton"], [data-testid="stSidebarCollapseButton"] button { color: var(--ink); }
 .block-container { max-width: 800px; padding-top: 1.6rem; padding-bottom: 6rem; }
 
 .appbar { background: linear-gradient(135deg, var(--hero-1), var(--hero-2)); color: #fff;
@@ -190,17 +203,46 @@ div[class*="st-key-chip_"] button { justify-content: flex-start; text-align: lef
 div[class*="st-key-chip_"] button div { justify-content: flex-start; text-align: left; width: 100%; }
 div[class*="st-key-chip_"] button p { white-space: normal; }
 
-[data-testid="stChatMessage"] { background: var(--surface) !important; border: 1px solid var(--line);
-  border-radius: 16px; padding: 14px 18px; margin-bottom: 12px; }
-[data-testid="stChatMessage"]:has([data-testid="stChatMessageAvatarUser"]),
-[data-testid="stChatMessage"]:has([data-testid="chatAvatarIcon-user"]) {
-  background: var(--user-bg) !important; border-color: var(--user-line); }
+/* ---------- Kustomisasi Bubble Chat (Bot vs User) ---------- */
+/* Style Default (Untuk Pesan Asisten / Bot) */
+[data-testid="stChatMessage"] { 
+  background: var(--surface) !important; 
+  border: 1px solid var(--line);
+  border-radius: 16px; 
+  padding: 14px 18px; 
+  margin-bottom: 12px; 
+}
 [data-testid="stChatMessage"] :is(p, li, h1, h2, h3, h4, strong, em, td, th, blockquote, span.katex) {
-  color: var(--ink) !important; }
+  color: var(--ink) !important; 
+}
+
+/* Style Khusus Pesan Pengguna (User) Berdasarkan Atribut Selector */
+[data-testid="stChatMessage"][data-testid*="user"],
+div.stChatFloatingInputContainer + div [data-testid="stChatMessage"]:nth-child(odd),
+[data-testid="stChatMessage"]:has(svg[aria-label*="user" i]),
+[data-testid="stChatMessage"]:has([class*="user" i]) {
+  /* Di-override menggunakan pengecekan class stream chat message row */
+}
+
+/* Penanganan spesifik untuk baris chat user di Streamlit */
+div[data-testid="stChatMessage"]:not(:has(div[aria-label*="assistant" i], img[alt*="assistant" i])) {
+  /* Fallback aman */
+}
+
+/* Cara paling akurat mendeteksi container chat user lewat atribut DOM terbaru */
+[data-testid="stChatMessage"]:has(div[data-testid="stChatMessageAvatarUser"]) {
+  background: var(--user-bg) !important;
+  border: 1px solid var(--user-line) !important;
+}
+[data-testid="stChatMessage"]:has(div[data-testid="stChatMessageAvatarUser"]) :is(p, li, h1, h2, h3, h4, strong, em, td, th, blockquote, span.katex) {
+  color: var(--user-ink) !important;
+}
+
 [data-testid="stChatMessageAvatarAssistant"], [data-testid="stChatMessageAvatarUser"],
 [data-testid="chatAvatarIcon-assistant"], [data-testid="chatAvatarIcon-user"] {
   background: var(--surface); border: 1px solid var(--line); border-radius: 50%; }
 
+/* ---------- Kode ---------- */
 [data-testid="stCode"] pre, .stMarkdown pre { background: var(--soft) !important;
   border: 1px solid var(--line); border-radius: 12px; }
 [data-testid="stCode"] pre, [data-testid="stCode"] code, [data-testid="stCode"] code span,
@@ -210,6 +252,7 @@ div[class*="st-key-chip_"] button p { white-space: normal; }
   font-family: 'JetBrains Mono', monospace; font-size: .86em; font-weight: 700;
   border-radius: 6px; padding: .1em .4em; }
 
+/* ---------- Input Bar ---------- */
 [data-testid="stBottom"] > div { background: var(--bg-solid); }
 [data-testid="stChatInput"] { background: var(--surface); border: 1px solid var(--line);
   border-radius: 16px; box-shadow: 0 6px 20px -14px var(--shadow); }
@@ -223,6 +266,7 @@ div[class*="st-key-chip_"] button p { white-space: normal; }
   border-radius: 10px; }
 [data-testid="stChatInputSubmitButton"]:disabled { background: var(--soft); color: var(--muted); }
 
+/* ---------- Sidebar Style ---------- */
 [data-testid="stSidebar"] { background: var(--side-bg); border-right: 1px solid var(--line); }
 [data-testid="stSidebarHeader"] { padding: .6rem 1rem 0; min-height: 0; height: auto; }
 [data-testid="stSidebar"] [data-testid="stSidebarContent"] { padding: 0 1rem 1.4rem; }
@@ -289,7 +333,6 @@ st.markdown(
     f"<style>{FONT_CSS}{THEME_CSS}{BASE_CSS}{THEMES[theme]['extra']}</style>",
     unsafe_allow_html=True,
 )
-
 
 # ---------------------------------------------------------------
 # FUNGSI BANTU
