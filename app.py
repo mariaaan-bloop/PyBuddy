@@ -8,7 +8,7 @@ from huggingface_hub import InferenceClient
 # KONFIGURASI
 # ---------------------------------------------------------------
 # Model coding Hugging Face; harus tersedia lewat Inference Providers.
-MODEL = "Qwen/Qwen2.5-Coder-32B-Instruct"
+MODEL = "openai/gpt-oss-120b:cheapest"
 RETRIES = 2
 
 SYSTEM_PROMPT = """Kamu adalah PyBuddy, asisten belajar Python yang ramah untuk
@@ -27,7 +27,7 @@ XP_PER_QUESTION = 10
 XP_PER_LEVEL = 50
 LEVEL_TITLES = ["Pemula", "Penjelajah", "Pendekar Kode", "Jagoan Python", "Master Python"]
 
-# Menu topik di sidebar
+# Menu topik di sidebar: (emoji, nama, pertanyaan yang dikirim ke PyBuddy)
 TOPICS = [
     ("🐣", "Dasar Python", "Jelaskan dasar-dasar Python untuk pemula: variabel, tipe data, dan print."),
     ("📦", "List, Tuple & Dict", "Jelaskan perbedaan list, tuple, dan dictionary, beserta kapan memakainya."),
@@ -369,6 +369,9 @@ with st.sidebar:
             "**Bisa bantu apa?** Menjelaskan konsep dengan bahasa sederhana, "
             "mencari penyebab error, dan memberi contoh kode serta latihan soal."
         )
+
+    # API key tidak ditampilkan di UI sama sekali.
+    # Dibaca dari .streamlit/secrets.toml atau environment variable.
     hf_token = load_api_key()
 
     reset_button = st.button(
