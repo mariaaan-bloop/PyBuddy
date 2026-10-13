@@ -2,13 +2,13 @@ import os
 import time
 
 import streamlit as st
-from huggingface_hub import InferenceClient
+from groq import Groq
 
 # ---------------------------------------------------------------
 # KONFIGURASI
 # ---------------------------------------------------------------
-# Model coding Hugging Face; harus tersedia lewat Inference Providers.
-MODEL = "openai/gpt-oss-120b:cheapest"
+# Model Groq. Bisa diganti lewat Streamlit Secrets: GROQ_MODEL.
+MODEL = os.environ.get("GROQ_MODEL", "openai/gpt-oss-20b")
 RETRIES = 2
 
 SYSTEM_PROMPT = """Kamu adalah PyBuddy, asisten belajar Python yang ramah untuk
@@ -201,24 +201,26 @@ div[class*="st-key-chip_"] button { justify-content: flex-start; text-align: lef
 
 /* ---------- Sidebar ---------- */
 [data-testid="stSidebar"] { background: var(--side-bg); border-right: 1px solid var(--line); }
-[data-testid="stSidebar"] [data-testid="stVerticalBlock"] { gap: .65rem; }
+[data-testid="stSidebar"] [data-testid="stVerticalBlock"] { gap: .38rem; }
+[data-testid="stSidebar"] [data-testid="stMarkdownContainer"] p { margin-bottom: .25rem; }
+[data-testid="stSidebar"] [data-testid="stSidebarContent"] { padding: 1rem .85rem 1.25rem; }
 .side-brand { display: flex; align-items: center; gap: 12px; }
-.logo-sm { width: 46px; height: 46px; border-radius: 14px; font-size: 1.5rem;
+.logo-sm { width: 42px; height: 42px; border-radius: 13px; font-size: 1.35rem;
   background: linear-gradient(135deg, var(--hero-1), var(--hero-2)); display: grid;
   place-items: center; box-shadow: 0 3px 0 var(--accent-d); }
-.side-name { font-weight: 900; font-size: 1.3rem; color: var(--ink); line-height: 1.1; }
+.side-name { font-weight: 900; font-size: 1.2rem; color: var(--ink); line-height: 1.1; }
 .side-sub { font-weight: 700; font-size: .82rem; color: var(--muted); }
-.side-divider { height: 1px; background: var(--line); margin: 14px 0 4px; }
-.side-title { font-weight: 900; font-size: 1.6rem; color: var(--ink); line-height: 1.2; }
+.side-divider { height: 1px; background: var(--line); margin: 9px 0 3px; }
+.side-title { font-weight: 900; font-size: 1.42rem; color: var(--ink); line-height: 1.2; }
 .side-desc { font-weight: 600; font-size: .95rem; color: var(--muted); line-height: 1.4; margin-top: -2px; }
-.side-label { font-weight: 800; font-size: .8rem; letter-spacing: .12em; color: var(--muted); margin-top: 12px; }
+.side-label { font-weight: 800; font-size: .74rem; letter-spacing: .1em; color: var(--muted); margin-top: 6px; }
 .side-foot { font-weight: 700; font-size: .8rem; color: var(--muted); text-align: center; margin-top: 4px; }
 
 /* Menu topik */
 div[class*="st-key-nav"] button { justify-content: flex-start; background: var(--chip-bg);
   color: var(--ink); border: 1px solid var(--chip-line); border-bottom-width: 1px;
-  border-radius: 18px; min-height: 60px; padding: 0 18px; box-shadow: none; }
-div[class*="st-key-nav"] button p { text-align: left; font-weight: 800; }
+  border-radius: 15px; min-height: 48px; padding: 5px 12px; box-shadow: none; }
+div[class*="st-key-nav"] button p { text-align: left; font-weight: 800; font-size: .94rem; line-height: 1.2; }
 div[class*="st-key-nav"] button:hover { background: var(--surface); border-color: var(--accent); color: var(--ink); }
 div[class*="st-key-navon_"] button { background: var(--accent-soft); border-color: var(--accent);
   box-shadow: 0 3px 0 var(--accent-d); }
@@ -226,7 +228,8 @@ div[class*="st-key-navon_"] button { background: var(--accent-soft); border-colo
 /* Pilihan tampilan */
 div[class*="st-key-theme"] button { justify-content: center; background: var(--surface);
   color: var(--ink); border: 1px solid var(--line); border-bottom-width: 1px;
-  border-radius: 16px; min-height: 50px; }
+  border-radius: 13px; min-height: 42px; padding: 4px 7px; }
+div[class*="st-key-theme"] button p { font-size: .85rem; font-weight: 800; }
 div[class*="st-key-theme"] button:hover { background: var(--soft); border-color: var(--accent); color: var(--ink); }
 div[class*="st-key-themeon_"] button { background: var(--accent-soft); border-color: var(--accent);
   box-shadow: 0 3px 0 var(--accent-d); }
@@ -262,23 +265,23 @@ st.markdown(
 # FUNGSI BANTU
 # ---------------------------------------------------------------
 def load_api_key():
-    """Ambil Hugging Face token dari Streamlit Secrets atau environment."""
+    """Ambil Groq API key dari Streamlit Secrets atau environment."""
     try:
-        key = st.secrets.get("HF_TOKEN", "")
+        key = st.secrets.get("GROQ_API_KEY", "")
     except Exception:
         key = ""
-    return key or os.environ.get("HF_TOKEN", "")
+    return key or os.environ.get("GROQ_API_KEY", "")
 
 
 def is_busy(error):
-    """Deteksi error sementara dari provider atau batas rate."""
+    """Deteksi error sementara atau batas pemakaian API."""
     text = str(error).upper()
     return any(k in text for k in ("503", "429", "502", "504", "RATE LIMIT", "OVERLOADED", "TEMPORARILY UNAVAILABLE"))
 
 
 def stream_reply(prompt):
-    """Kirim riwayat chat ke Hugging Face dan stream jawaban."""
-    client = st.session_state.hf_client
+    """Kirim riwayat chat ke Groq dan stream jawaban."""
+    client = st.session_state.groq_client
     chat_messages = [{"role": "system", "content": SYSTEM_PROMPT}]
     chat_messages.extend(st.session_state.messages)
     last_error = None
@@ -355,9 +358,11 @@ with st.sidebar:
             st.rerun()
 
     st.markdown('<div class="side-label">🎨 TAMPILAN</div>', unsafe_allow_html=True)
-    for name, t in THEMES.items():
+    theme_cols = st.columns(2, gap="small")
+    theme_labels = {"light": "☀️ Terang", "dark": "🌙 Gelap", "sunset": "🌇 Senja"}
+    for i, (name, t) in enumerate(THEMES.items()):
         key = f"themeon_{name}" if name == theme else f"theme_{name}"
-        if st.button(t["label"], key=key):
+        if theme_cols[i % 2].button(theme_labels[name], key=key, use_container_width=True):
             st.session_state.theme = name
             st.rerun()
 
@@ -372,7 +377,7 @@ with st.sidebar:
 
     # API key tidak ditampilkan di UI sama sekali.
     # Dibaca dari .streamlit/secrets.toml atau environment variable.
-    hf_token = load_api_key()
+    groq_api_key = load_api_key()
 
     reset_button = st.button(
         "🗑️  Hapus percakapan",
@@ -389,19 +394,16 @@ if "messages" not in st.session_state:
 st.session_state.setdefault("xp", 0)
 st.session_state.setdefault("asked", 0)
 
-if hf_token and (
-    "hf_client" not in st.session_state
-    or getattr(st.session_state, "_last_hf_token", None) != hf_token
+if groq_api_key and (
+    "groq_client" not in st.session_state
+    or getattr(st.session_state, "_last_groq_api_key", None) != groq_api_key
 ):
     try:
-        st.session_state.hf_client = InferenceClient(
-            provider="auto",
-            api_key=hf_token,
-        )
-        st.session_state._last_hf_token = hf_token
+        st.session_state.groq_client = Groq(api_key=groq_api_key)
+        st.session_state._last_groq_api_key = groq_api_key
         st.session_state.messages = []
     except Exception as e:
-        st.error(f"Tidak bisa menginisialisasi Hugging Face. Periksa token kamu. Detail: {e}")
+        st.error(f"Tidak bisa menginisialisasi Groq. Periksa API key kamu. Detail: {e}")
         st.stop()
 
 if reset_button:
@@ -417,15 +419,14 @@ if reset_button:
 header_slot = st.empty()
 render_header(header_slot)
 
-if not hf_token:
+if not groq_api_key:
     st.markdown(
         """<div class="hero"><div class="mascot">🐍</div>
-<div class="bubble">Halo! API key belum diatur, jadi aku belum bisa menjawab.</div></div>""",
+<div class="bubble">Halo! Groq API key belum diatur, jadi aku belum bisa menjawab.</div></div>""",
         unsafe_allow_html=True,
     )
     st.error(
-        "Tambahkan `HF_TOKEN` di file `.streamlit/secrets.toml` "
-        "(atau di Secrets saat deploy), lalu jalankan ulang aplikasi.",
+        "Tambahkan `GROQ_API_KEY` di Streamlit Secrets (atau file `.streamlit/secrets.toml`), lalu jalankan ulang aplikasi.",
         icon="🗝️",
     )
     st.stop()
@@ -478,14 +479,14 @@ if prompt:
         except Exception as e:
             if is_busy(e):
                 st.warning(
-                    "Provider Hugging Face sedang sibuk atau membatasi permintaan. "
+                    "Provider Groq sedang sibuk atau batas pemakaian tercapai. "
                     "Tunggu sebentar lalu kirim pertanyaanmu lagi.",
                     icon="⏳",
                 )
             else:
                 st.error(
-                    "Terjadi kesalahan saat menghubungi Hugging Face. "
-                    "Periksa Hugging Face token, izin Inference Providers, kuota, atau ketersediaan model. "
+                    "Terjadi kesalahan saat menghubungi Groq. "
+                    "Periksa GROQ_API_KEY, batas pemakaian API, atau ketersediaan model. "
                     f"Detail: {e}"
                 )
             # Hapus pesan user yang gagal diproses agar bisa dicoba lagi.
