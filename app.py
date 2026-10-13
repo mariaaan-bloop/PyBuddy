@@ -56,7 +56,7 @@ THEMES = {
             "ink": "#182642", "muted": "#647493",
             "accent": "#2B6CB0", "accent_d": "#2C5282", "accent_soft": "#EBF8FF",
             "on_accent": "#FFFFFF", "hl": "#ECC94B", "danger": "#E53E3E",
-            # Warna Bubble Chat User (Biru lembut yang kontras dengan background bot)
+            # Warna Bubble Chat User (Biru terang yang kontras)
             "user_bg": "#DCEEFE", "user_line": "#90CDF4", "user_ink": "#1A365D",
             "hero_1": "#3182CE", "hero_2": "#2B6CB0", "code_ink": "#2C5282",
             "term_bg": "#1A202C", "shadow": "rgba(49,130,206,.2)",
@@ -73,7 +73,7 @@ THEMES = {
             "ink": "#F0F4F8", "muted": "#9FB3C8",
             "accent": "#4FD1C5", "accent_d": "#319795", "accent_soft": "#1D3B48",
             "on_accent": "#0B132B", "hl": "#F6E05E", "danger": "#FEB2B2",
-            # Warna Bubble Chat User (Hijau/Teal Gelap yang beda dari bot)
+            # Warna Bubble Chat User (Teal Gelap)
             "user_bg": "#134E4A", "user_line": "#2DD4BF", "user_ink": "#CCFBF1",
             "hero_1": "#2B6CB0", "hero_2": "#1A365D", "code_ink": "#F6E05E",
             "term_bg": "#070B16", "shadow": "rgba(0,0,0,.4)",
@@ -92,7 +92,7 @@ THEMES = {
             "ink": "#2D3748", "muted": "#7B341E",
             "accent": "#DD6B20", "accent_d": "#C05621", "accent_soft": "#FFFAF0",
             "on_accent": "#FFFFFF", "hl": "#D69E2E", "danger": "#E53E3E",
-            # Warna Bubble Chat User (Keoranyean/Krem hangat)
+            # Warna Bubble Chat User (Krem Oranye Hangat)
             "user_bg": "#FEEBC8", "user_line": "#FBD38D", "user_ink": "#7B341E",
             "hero_1": "#ED8936", "hero_2": "#DD6B20", "code_ink": "#C05621",
             "term_bg": "#2C1A1D", "shadow": "rgba(221,107,32,.2)",
@@ -101,7 +101,6 @@ THEMES = {
     },
 }
 
-# Konfigurasi Halaman + Membuat Sidebar Selalu Terbuka (expanded)
 st.set_page_config(
     page_title="PyBuddy", 
     page_icon="🐍", 
@@ -128,8 +127,7 @@ THEME_CSS = (
 )
 
 BASE_CSS = """
-/* ---------- Pengaturan Sidebar Permanen ---------- */
-/* Sembunyikan tombol panah penutup/pembuka sidebar */
+/* Sembunyikan tombol expand/collapse sidebar bawaan */
 [data-testid="stSidebarCollapseButton"],
 [data-testid="stExpandSidebarButton"] {
     display: none !important;
@@ -148,7 +146,6 @@ footer, [data-testid="stToolbar"], [data-testid="stDecoration"] { display: none;
 header[data-testid="stHeader"] { background: transparent; }
 .block-container { max-width: 800px; padding-top: 1.6rem; padding-bottom: 6rem; }
 
-/* ---------- Header Aplikasi ---------- */
 .appbar { background: linear-gradient(135deg, var(--hero-1), var(--hero-2)); color: #fff;
   border-radius: 22px; padding: 20px 24px 18px; margin-bottom: 28px;
   box-shadow: 0 14px 30px -18px var(--shadow); }
@@ -167,7 +164,6 @@ header[data-testid="stHeader"] { background: transparent; }
 .track { height: 10px; background: rgba(0,0,0,.25); border-radius: 99px; overflow: hidden; }
 .fill { height: 100%; background: var(--hl); border-radius: 99px; transition: width .5s ease; }
 
-/* ---------- Hero Terminal ---------- */
 .hero { display: flex; align-items: center; gap: 18px; margin: 4px 0 26px; }
 .mascot { flex: none; width: 84px; height: 84px; border-radius: 24px; display: grid;
   place-items: center; font-size: 3rem; background: var(--surface); border: 1px solid var(--line);
@@ -189,7 +185,6 @@ header[data-testid="stHeader"] { background: transparent; }
 @keyframes blink { 50% { opacity: 0; } }
 .hint { font-weight: 600; font-size: .92rem; color: var(--muted); margin: 0 0 12px; }
 
-/* ---------- Tombol Utilitas ---------- */
 .stButton, [data-testid="stButton"] { width: 100%; }
 .stButton > button {
   width: 100%; background: var(--surface); color: var(--ink); font-weight: 600; font-size: .98rem;
@@ -209,7 +204,7 @@ div[class*="st-key-chip_"] button div { justify-content: flex-start; text-align:
 div[class*="st-key-chip_"] button p { white-space: normal; }
 
 /* ---------- Kustomisasi Bubble Chat (Bot vs User) ---------- */
-/* Gelembung Asisten / Bot */
+/* Style Default (Asisten / Bot) */
 [data-testid="stChatMessage"] { 
   background: var(--surface) !important; 
   border: 1px solid var(--line);
@@ -221,15 +216,18 @@ div[class*="st-key-chip_"] button p { white-space: normal; }
   color: var(--ink) !important; 
 }
 
-/* Gelembung User / Pengguna (Dibuat Beda) */
+/* Style Khusus Pengguna (User) - Menargetkan elemen avatar user */
+[data-testid="stChatMessage"]:has([data-testid="chatAvatarIcon-user"]),
 [data-testid="stChatMessage"]:has([data-testid="stChatMessageAvatarUser"]),
-[data-testid="stChatMessage"]:has([data-testid="chatAvatarIcon-user"]) {
-  background: var(--user-bg) !important; 
-  border: 1px solid var(--user-line) !important; 
+[data-testid="stChatMessage"]:has(div[data-testid="stChatMessageAvatarUser"]) {
+  background: var(--user-bg) !important;
+  border: 1px solid var(--user-line) !important;
 }
+
+[data-testid="stChatMessage"]:has([data-testid="chatAvatarIcon-user"]) :is(p, li, h1, h2, h3, h4, strong, em, td, th, blockquote, span.katex),
 [data-testid="stChatMessage"]:has([data-testid="stChatMessageAvatarUser"]) :is(p, li, h1, h2, h3, h4, strong, em, td, th, blockquote, span.katex),
-[data-testid="stChatMessage"]:has([data-testid="chatAvatarIcon-user"]) :is(p, li, h1, h2, h3, h4, strong, em, td, th, blockquote, span.katex) {
-  color: var(--user-ink) !important; 
+[data-testid="stChatMessage"]:has(div[data-testid="stChatMessageAvatarUser"]) :is(p, li, h1, h2, h3, h4, strong, em, td, th, blockquote, span.katex) {
+  color: var(--user-ink) !important;
 }
 
 [data-testid="stChatMessageAvatarAssistant"], [data-testid="stChatMessageAvatarUser"],
@@ -260,13 +258,13 @@ div[class*="st-key-chip_"] button p { white-space: normal; }
   border-radius: 10px; }
 [data-testid="stChatInputSubmitButton"]:disabled { background: var(--soft); color: var(--muted); }
 
-/* ---------- Sidebar Style ---------- */
+/* ---------- Sidebar & Perbaikan Tampilan Bagian Bawah ---------- */
 [data-testid="stSidebar"] { background: var(--side-bg); border-right: 1px solid var(--line); }
 [data-testid="stSidebarHeader"] { padding: .6rem 1rem 0; min-height: 0; height: auto; }
-[data-testid="stSidebar"] [data-testid="stSidebarContent"] { padding: 0 1rem 1.4rem; }
-[data-testid="stSidebar"] [data-testid="stVerticalBlock"] { gap: .4rem; }
+[data-testid="stSidebar"] [data-testid="stSidebarContent"] { padding: 0 1rem 1.4rem; display: flex; flex-direction: column; }
+[data-testid="stSidebar"] [data-testid="stVerticalBlock"] { gap: .4rem; width: 100%; }
 [data-testid="stSidebar"] [data-testid="stElementContainer"],
-[data-testid="stSidebar"] [data-testid="stMarkdownContainer"] { overflow: visible; }
+[data-testid="stSidebar"] [data-testid="stMarkdownContainer"] { overflow: visible; width: 100%; }
 
 .side-brand { display: flex; align-items: center; gap: 12px; padding: 4px 2px 14px; }
 .logo-sm { flex: none; width: 44px; height: 44px; border-radius: 13px; font-size: 1.4rem;
@@ -277,37 +275,41 @@ div[class*="st-key-chip_"] button p { white-space: normal; }
 .side-sub { font-weight: 500; font-size: .84rem; color: var(--muted); line-height: 1.3; }
 .side-label { display: block; font-weight: 700; font-size: .82rem; color: var(--muted);
   line-height: 1.3; padding: 16px 4px 6px; }
-.side-divider { height: 1px; background: var(--line); margin: 14px 0 6px; }
+.side-divider { height: 1px; background: var(--line); margin: 14px 0 6px; width: 100%; }
 .side-foot { font-weight: 500; font-size: .8rem; color: var(--muted); text-align: center;
-  padding-top: 10px; }
+  padding-top: 10px; width: 100%; }
 
 div[class*="st-key-nav"] button { justify-content: flex-start; background: transparent;
   color: var(--ink); border: 1px solid transparent; border-radius: 12px; min-height: 44px;
-  padding: 6px 12px; box-shadow: none; }
+  padding: 6px 12px; box-shadow: none; width: 100%; }
 div[class*="st-key-nav"] button div { justify-content: flex-start; text-align: left; width: 100%; }
 div[class*="st-key-nav"] button p { text-align: left; white-space: nowrap; font-weight: 600;
   font-size: .95rem; }
 div[class*="st-key-nav"] button:hover { background: var(--soft); border-color: transparent; color: var(--ink); }
-div[class*="st-key-navon_"] button { background: var(--accent-soft); box-shadow: inset 3px 0 0 var(--accent); }
+div[class*="st-key-navon_"] button { background: var(--accent-soft); box-shadow: inset 3px 0 0 var(--accent); width: 100%; }
 div[class*="st-key-navon_"] button p { font-weight: 800; }
 
+/* Perbaikan khusus tombol pilihan tema agar sejajar rapi di sidebar */
+div[class*="st-key-theme"] { width: 100% !important; }
 div[class*="st-key-theme"] button { justify-content: center; background: var(--surface);
   border: 1px solid var(--line); border-radius: 12px; min-height: 44px; padding: 4px;
-  box-shadow: none; }
+  box-shadow: none; width: 100% !important; }
 div[class*="st-key-theme"] button p { font-size: 1.2rem; line-height: 1; }
 div[class*="st-key-theme"] button:hover { background: var(--soft); border-color: var(--accent); }
 div[class*="st-key-themeon_"] button { background: var(--accent-soft); border-color: var(--accent);
-  box-shadow: 0 0 0 1px var(--accent); }
+  box-shadow: 0 0 0 1px var(--accent); width: 100% !important; }
 
+/* Perbaikan tombol Hapus Percakapan */
 div.st-key-reset button { background: transparent; color: var(--danger);
   border: 1px solid var(--danger); justify-content: center; font-weight: 700;
-  min-height: 44px; box-shadow: none; }
+  min-height: 44px; box-shadow: none; width: 100%; border-radius: 12px; }
 div.st-key-reset button:hover { background: var(--danger); color: var(--on-accent);
   border-color: var(--danger); }
 
+[data-testid="stSidebar"] [data-testid="stExpander"] { width: 100%; }
 [data-testid="stSidebar"] [data-testid="stExpander"] details { background: var(--surface);
-  border: 1px solid var(--line); border-radius: 12px; }
-[data-testid="stSidebar"] [data-testid="stExpander"] summary { padding: .55rem .8rem; }
+  border: 1px solid var(--line); border-radius: 12px; width: 100%; }
+[data-testid="stSidebar"] [data-testid="stExpander"] summary { padding: .55rem .8rem; width: 100%; }
 [data-testid="stSidebar"] [data-testid="stExpander"] summary p { color: var(--ink);
   font-weight: 700; font-size: .93rem; }
 [data-testid="stSidebar"] [data-testid="stExpanderDetails"] p { font-size: .9rem; line-height: 1.55; }
