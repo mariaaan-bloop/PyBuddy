@@ -1,12 +1,15 @@
 import os
+import time
 
 import streamlit as st
-from google import genai
+from huggingface_hub import InferenceClient
 
 # ---------------------------------------------------------------
 # KONFIGURASI
 # ---------------------------------------------------------------
-MODEL = "gemini-3.8-flash"
+# Model coding Hugging Face; harus tersedia lewat Inference Providers.
+MODEL = "Qwen/Qwen2.5-Coder-32B-Instruct"
+RETRIES = 2
 
 SYSTEM_PROMPT = """Kamu adalah PyBuddy, asisten belajar Python yang ramah untuk
 mahasiswa dan pelajar pemula di Indonesia.
@@ -24,6 +27,17 @@ XP_PER_QUESTION = 10
 XP_PER_LEVEL = 50
 LEVEL_TITLES = ["Pemula", "Penjelajah", "Pendekar Kode", "Jagoan Python", "Master Python"]
 
+# Menu topik di sidebar
+TOPICS = [
+    ("🐣", "Dasar Python", "Jelaskan dasar-dasar Python untuk pemula: variabel, tipe data, dan print."),
+    ("📦", "List, Tuple & Dict", "Jelaskan perbedaan list, tuple, dan dictionary, beserta kapan memakainya."),
+    ("🔁", "Perulangan & Kondisi", "Jelaskan if-else dan perulangan for/while dengan analogi sehari-hari."),
+    ("🧩", "Fungsi & Modul", "Jelaskan cara membuat fungsi di Python dan cara memakai modul."),
+    ("🐞", "Debug Error", "Ajari aku cara membaca pesan error Python dan menemukan penyebabnya."),
+    ("📝", "Latihan Soal", "Beri aku satu latihan soal Python untuk pemula, tanpa kunci jawaban dulu."),
+]
+
+# Contoh pertanyaan di layar sambutan (berguna saat sidebar tertutup di HP)
 QUICK_STARTS = [
     "Apa bedanya list dan tuple?",
     "Jelaskan perulangan for dengan analogi",
@@ -31,165 +45,287 @@ QUICK_STARTS = [
     "Beri aku latihan soal tentang if-else",
 ]
 
+# ---------------------------------------------------------------
+# TEMA
+# ---------------------------------------------------------------
+THEMES = {
+    "light": {
+        "label": "☀️  Terang",
+        "scheme": "light",
+        "vars": {
+            "bg": "#FFFFFF", "bg_solid": "#FFFFFF", "surface": "#FFFFFF",
+            "soft": "#F7F7F7", "side_bg": "#FBFCFA", "line": "#E5E5E5",
+            "ink": "#3C3C3C", "muted": "#777777",
+            "accent": "#58CC02", "accent_d": "#58A700", "accent_soft": "#E6F7D6",
+            "link": "#1899D6", "chip_bg": "#F6F9F4", "chip_line": "#DCE6D6",
+            "user_bg": "#DDF4FF", "user_line": "#84D8FF",
+            "hero_1": "#6BD60A", "hero_2": "#2DB84C", "code_ink": "#58A700",
+        },
+        "extra": "",
+    },
+    "dark": {
+        "label": "🌙  Gelap",
+        "scheme": "dark",
+        "vars": {
+            "bg": "#131F24", "bg_solid": "#131F24", "surface": "#1B2B32",
+            "soft": "#202F36", "side_bg": "#0F191D", "line": "#2E414B",
+            "ink": "#E8F0F3", "muted": "#9DB0B9",
+            "accent": "#58CC02", "accent_d": "#46A302", "accent_soft": "#1F3B22",
+            "link": "#49C0F8", "chip_bg": "#1B2B32", "chip_line": "#2E414B",
+            "user_bg": "#17394B", "user_line": "#2A6E92",
+            "hero_1": "#4CB800", "hero_2": "#1E8F4E", "code_ink": "#8EE05A",
+        },
+        "extra": """
+[data-testid="stCode"] pre, [data-testid="stCode"] code, [data-testid="stCode"] span
+  { color: #E8F0F3 !important; }
+[data-testid="stAlert"] p { color: #E8F0F3; }
+""",
+    },
+    "sunset": {
+        "label": "🌇  Senja",
+        "scheme": "light",
+        "vars": {
+            "bg": "linear-gradient(180deg, #FFF4EA 0%, #FFE8EE 100%)",
+            "bg_solid": "#FFF1E8", "surface": "#FFFFFF",
+            "soft": "#FFF7F1", "side_bg": "#FFEBDD", "line": "#F5D5C0",
+            "ink": "#4A2E2A", "muted": "#9A6F5E",
+            "accent": "#FF7A45", "accent_d": "#D95B28", "accent_soft": "#FFE2CF",
+            "link": "#D95B28", "chip_bg": "#FFF6EE", "chip_line": "#F5D5C0",
+            "user_bg": "#FFE2CF", "user_line": "#FFB48A",
+            "hero_1": "#FF9A5A", "hero_2": "#FF5E7E", "code_ink": "#D95B28",
+        },
+        "extra": "",
+    },
+}
+
 st.set_page_config(page_title="PyBuddy", page_icon="🐍", layout="centered")
 
-# ---------------------------------------------------------------
-# GAYA (CSS) ALA DUOLINGO
-# ---------------------------------------------------------------
-CSS = """
-@import url('https://fonts.googleapis.com/css2?family=Nunito:wght@600;700;800;900&display=swap');
+theme = st.session_state.setdefault("theme", "light")
+if theme not in THEMES:
+    theme = st.session_state.theme = "light"
 
-:root {
-  --green: #58CC02;  --green-d: #58A700;
-  --blue: #1CB0F6;   --blue-d: #1899D6;  --blue-bg: #DDF4FF;  --blue-line: #84D8FF;
-  --yellow: #FFC800; --yellow-d: #E5B400;
-  --orange: #FF9600;
-  --red: #FF4B4B;    --red-d: #EA2B2B;
-  --ink: #3C3C3C;    --muted: #777777;
-  --line: #E5E5E5;   --snow: #F7F7F7;
-}
+# ---------------------------------------------------------------
+# GAYA (CSS)
+# ---------------------------------------------------------------
+FONT_CSS = "@import url('https://fonts.googleapis.com/css2?family=Nunito:wght@600;700;800;900&display=swap');"
 
-/* Dasar */
-.stApp { background: #FFFFFF; color: var(--ink); }
+THEME_CSS = (
+    ":root{color-scheme:" + THEMES[theme]["scheme"] + ";"
+    + ";".join(f"--{k.replace('_', '-')}:{v}" for k, v in THEMES[theme]["vars"].items())
+    + "}"
+)
+
+BASE_CSS = """
+/* ---------- Dasar ---------- */
+.stApp { background: var(--bg); background-attachment: fixed; color: var(--ink); }
+[data-testid="stAppViewContainer"], [data-testid="stMain"] { background: transparent; }
 .stApp, .stApp p, .stApp li, .stApp label, .stApp h1, .stApp h2, .stApp h3,
-.stApp h4, .stApp button, .stApp input, .stApp textarea {
-  font-family: 'Nunito', sans-serif;
-}
+.stApp h4, .stApp button, .stApp input, .stApp textarea { font-family: 'Nunito', sans-serif; }
+:is([data-testid="stMain"], [data-testid="stSidebar"], [data-testid="stBottom"])
+  :is(p, li, label, h1, h2, h3, h4) { color: var(--ink); }
 .stApp p, .stApp li { font-weight: 600; font-size: 1.02rem; line-height: 1.6; }
-.stApp h1, .stApp h2, .stApp h3, .stApp h4 { font-weight: 900; color: var(--ink); }
-#MainMenu, footer { visibility: hidden; }
+.stApp h1, .stApp h2, .stApp h3, .stApp h4 { font-weight: 900; }
+footer, [data-testid="stToolbar"], [data-testid="stDecoration"] { display: none; }
 header[data-testid="stHeader"] { background: transparent; }
-.block-container { max-width: 760px; padding-top: 1.2rem; padding-bottom: 6rem; }
+[data-testid="stExpandSidebarButton"], [data-testid="stSidebarCollapseButton"] button { color: var(--ink); }
+.block-container { max-width: 780px; padding-top: 1.4rem; padding-bottom: 6rem; }
 
-/* Bar atas: logo + statistik */
-.topbar { display: flex; align-items: center; justify-content: space-between;
-  gap: 12px; flex-wrap: wrap; margin-bottom: 8px; }
-.brand { font-weight: 900; font-size: 1.9rem; color: var(--green); letter-spacing: -0.5px; }
+/* ---------- Header aplikasi ---------- */
+.appbar { background: linear-gradient(135deg, var(--hero-1), var(--hero-2)); color: #fff;
+  border-radius: 24px; padding: 18px 22px; margin-bottom: 24px;
+  box-shadow: 0 5px 0 var(--accent-d); }
+.appbar-top { display: flex; align-items: center; justify-content: space-between;
+  gap: 14px; flex-wrap: wrap; }
+.brand { display: flex; align-items: center; gap: 14px; }
+.logo { width: 56px; height: 56px; border-radius: 18px; background: rgba(255,255,255,.22);
+  border: 2px solid rgba(255,255,255,.4); display: grid; place-items: center; font-size: 2rem; }
+.app-name { font-weight: 900; font-size: 1.7rem; line-height: 1.1; letter-spacing: -.5px; }
+.app-tag { font-weight: 700; font-size: .92rem; opacity: .92; }
 .stats { display: flex; gap: 8px; flex-wrap: wrap; }
-.pill { font-weight: 900; font-size: 1rem; padding: 6px 14px; border-radius: 14px;
-  border: 2px solid var(--line); background: #fff; white-space: nowrap; }
-.pill.fire { color: var(--orange); }
-.pill.xp { color: var(--yellow-d); }
-.pill.lvl { color: var(--blue-d); }
+.pill { font-weight: 900; font-size: .95rem; padding: 6px 13px; border-radius: 14px;
+  background: rgba(255,255,255,.2); border: 2px solid rgba(255,255,255,.35); white-space: nowrap; }
+.level-meta { display: flex; justify-content: space-between; font-weight: 800;
+  font-size: .88rem; margin: 16px 0 6px; }
+.track { height: 14px; background: rgba(0,0,0,.18); border-radius: 99px; overflow: hidden; }
+.fill { height: 100%; background: #fff; border-radius: 99px; min-width: 14px;
+  transition: width .5s ease; }
 
-/* Progres level */
-.level-row { display: flex; align-items: center; gap: 12px; margin: 4px 0 22px; }
-.level-name { font-weight: 800; color: var(--muted); font-size: .9rem; white-space: nowrap; }
-.track { flex: 1; height: 16px; background: var(--line); border-radius: 99px;
-  overflow: hidden; position: relative; }
-.fill { height: 100%; background: var(--green); border-radius: 99px;
-  position: relative; transition: width .5s ease; min-width: 16px; }
-.fill::after { content: ""; position: absolute; left: 8px; right: 8px; top: 3px;
-  height: 4px; background: rgba(255,255,255,.35); border-radius: 99px; }
-
-/* Maskot + gelembung bicara */
-.hero { display: flex; align-items: center; gap: 18px; margin: 18px 0 26px; }
+/* ---------- Maskot + gelembung bicara ---------- */
+.hero { display: flex; align-items: center; gap: 18px; margin: 8px 0 24px; }
 .mascot { font-size: 5.2rem; line-height: 1; animation: bob 2.4s ease-in-out infinite; }
 @keyframes bob { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-8px); } }
-.bubble { position: relative; border: 2px solid var(--line); border-radius: 18px;
-  padding: 14px 18px; font-weight: 800; font-size: 1.15rem; color: var(--ink); }
-.bubble::before { content: ""; position: absolute; left: -12px; top: 50%;
-  margin-top: -10px; border: 10px solid transparent; border-right-color: var(--line);
-  border-left: 0; }
-.bubble::after { content: ""; position: absolute; left: -9px; top: 50%;
-  margin-top: -8px; border: 8px solid transparent; border-right-color: #fff;
-  border-left: 0; }
+.bubble { position: relative; background: var(--surface); border: 2px solid var(--line);
+  border-radius: 18px; padding: 14px 18px; font-weight: 800; font-size: 1.15rem; color: var(--ink); }
+.bubble::before { content: ""; position: absolute; left: -12px; top: 50%; margin-top: -10px;
+  border: 10px solid transparent; border-right-color: var(--line); border-left: 0; }
+.bubble::after { content: ""; position: absolute; left: -9px; top: 50%; margin-top: -8px;
+  border: 8px solid transparent; border-right-color: var(--surface); border-left: 0; }
 .hint { font-weight: 800; color: var(--muted); margin: 0 0 10px; }
 
-/* Tombol 3D */
+/* ---------- Tombol 3D (area utama) ---------- */
 .stButton > button {
-  background: #fff; color: var(--blue-d); font-weight: 800; font-size: 1rem;
+  background: var(--surface); color: var(--link); font-weight: 800; font-size: 1rem;
   border: 2px solid var(--line); border-bottom-width: 4px; border-radius: 16px;
-  padding: 10px 14px; min-height: 52px; width: 100%; text-align: left;
-  transition: transform .05s, background .15s;
+  padding: 10px 14px; min-height: 52px; width: 100%;
+  transition: transform .05s, background .15s, border-color .15s;
 }
-.stButton > button:hover { background: var(--snow); border-color: var(--line); color: var(--blue-d); }
+.stButton > button p { color: inherit; font-weight: inherit; margin: 0; }
+.stButton > button:hover { background: var(--soft); border-color: var(--line); color: var(--link); }
 .stButton > button:active { transform: translateY(2px); border-bottom-width: 2px; }
-.stButton > button:focus-visible { outline: 3px solid var(--blue-line); outline-offset: 2px; }
+.stButton > button:focus-visible { outline: 3px solid var(--user-line); outline-offset: 2px; }
+div[class*="st-key-chip_"] button { justify-content: flex-start; text-align: left; }
 
-.st-key-reset button { background: var(--red); color: #fff; border-color: var(--red-d);
-  text-align: center; font-weight: 900; }
-.st-key-reset button:hover { background: #ff6161; color: #fff; border-color: var(--red-d); }
-
-/* Gelembung chat */
-[data-testid="stChatMessage"] {
-  background: #fff; border: 2px solid var(--line); border-radius: 20px;
-  padding: 14px 18px; margin-bottom: 14px;
-}
+/* ---------- Gelembung chat ---------- */
+[data-testid="stChatMessage"] { background: var(--surface); border: 2px solid var(--line);
+  border-radius: 20px; padding: 14px 18px; margin-bottom: 14px; }
 [data-testid="stChatMessage"]:has([data-testid="stChatMessageAvatarUser"]),
 [data-testid="stChatMessage"]:has([data-testid="chatAvatarIcon-user"]) {
-  background: var(--blue-bg); border-color: var(--blue-line);
-}
+  background: var(--user-bg); border-color: var(--user-line); }
 [data-testid="stChatMessageAvatarAssistant"], [data-testid="stChatMessageAvatarUser"],
 [data-testid="chatAvatarIcon-assistant"], [data-testid="chatAvatarIcon-user"] {
-  background: #fff; border: 2px solid var(--line); border-radius: 50%;
-}
+  background: var(--surface); border: 2px solid var(--line); border-radius: 50%; }
 
-/* Blok kode */
-[data-testid="stCode"] pre, .stMarkdown pre {
-  background: var(--snow) !important; border: 2px solid var(--line);
-  border-radius: 14px;
-}
-.stMarkdown code { border-radius: 8px; font-weight: 700; }
+/* ---------- Kode ---------- */
+[data-testid="stCode"] pre, .stMarkdown pre { background: var(--soft) !important;
+  border: 2px solid var(--line); border-radius: 14px; }
+.stMarkdown :not(pre) > code { background: var(--soft); color: var(--code-ink);
+  border-radius: 8px; font-weight: 700; }
 
-/* Kolom input chat */
-[data-testid="stBottom"] > div { background: #fff; }
-[data-testid="stChatInput"] { border: 2px solid var(--line); border-radius: 18px;
-  background: var(--snow); }
-[data-testid="stChatInput"]:focus-within { border-color: var(--blue); }
-[data-testid="stChatInput"] textarea { font-weight: 700; }
+/* ---------- Kolom input ---------- */
+[data-testid="stBottom"] > div { background: var(--bg-solid); }
+[data-testid="stChatInput"] { background: var(--soft); border: 2px solid var(--line);
+  border-radius: 18px; }
+[data-testid="stChatInput"] > div, [data-testid="stChatInput"] textarea
+  { background: transparent; color: var(--ink); font-weight: 700; }
+[data-testid="stChatInput"]:focus-within { border-color: var(--accent); }
 
-/* Sidebar */
-[data-testid="stSidebar"] { background: #fff; border-right: 2px solid var(--line); }
-.side-card { border: 2px solid var(--line); border-radius: 18px; padding: 14px 16px;
-  margin-bottom: 14px; }
-.side-card h4 { margin: 0 0 6px; font-size: 1.05rem; }
-.side-card p, .side-card li { font-size: .95rem; margin: 0; }
-.side-card ul { padding-left: 18px; margin: 0; }
-[data-testid="stSidebar"] input { border-radius: 14px; font-weight: 700; }
+/* ---------- Sidebar ---------- */
+[data-testid="stSidebar"] { background: var(--side-bg); border-right: 1px solid var(--line); }
+[data-testid="stSidebar"] [data-testid="stVerticalBlock"] { gap: .65rem; }
+.side-brand { display: flex; align-items: center; gap: 12px; }
+.logo-sm { width: 46px; height: 46px; border-radius: 14px; font-size: 1.5rem;
+  background: linear-gradient(135deg, var(--hero-1), var(--hero-2)); display: grid;
+  place-items: center; box-shadow: 0 3px 0 var(--accent-d); }
+.side-name { font-weight: 900; font-size: 1.3rem; color: var(--ink); line-height: 1.1; }
+.side-sub { font-weight: 700; font-size: .82rem; color: var(--muted); }
+.side-divider { height: 1px; background: var(--line); margin: 14px 0 4px; }
+.side-title { font-weight: 900; font-size: 1.6rem; color: var(--ink); line-height: 1.2; }
+.side-desc { font-weight: 600; font-size: .95rem; color: var(--muted); line-height: 1.4; margin-top: -2px; }
+.side-label { font-weight: 800; font-size: .8rem; letter-spacing: .12em; color: var(--muted); margin-top: 12px; }
+.side-foot { font-weight: 700; font-size: .8rem; color: var(--muted); text-align: center; margin-top: 4px; }
+
+/* Menu topik */
+div[class*="st-key-nav"] button { justify-content: flex-start; background: var(--chip-bg);
+  color: var(--ink); border: 1px solid var(--chip-line); border-bottom-width: 1px;
+  border-radius: 18px; min-height: 60px; padding: 0 18px; box-shadow: none; }
+div[class*="st-key-nav"] button p { text-align: left; font-weight: 800; }
+div[class*="st-key-nav"] button:hover { background: var(--surface); border-color: var(--accent); color: var(--ink); }
+div[class*="st-key-navon_"] button { background: var(--accent-soft); border-color: var(--accent);
+  box-shadow: 0 3px 0 var(--accent-d); }
+
+/* Pilihan tampilan */
+div[class*="st-key-theme"] button { justify-content: center; background: var(--surface);
+  color: var(--ink); border: 1px solid var(--line); border-bottom-width: 1px;
+  border-radius: 16px; min-height: 50px; }
+div[class*="st-key-theme"] button:hover { background: var(--soft); border-color: var(--accent); color: var(--ink); }
+div[class*="st-key-themeon_"] button { background: var(--accent-soft); border-color: var(--accent);
+  box-shadow: 0 3px 0 var(--accent-d); }
+
+/* Tombol hapus */
+div.st-key-reset button { background: #FF4B4B; color: #fff; border-color: #EA2B2B;
+  justify-content: center; font-weight: 900; }
+div.st-key-reset button:hover { background: #ff6161; color: #fff; border-color: #EA2B2B; }
+
+[data-testid="stExpander"] details { background: var(--surface); border: 1px solid var(--line);
+  border-radius: 16px; }
+[data-testid="stExpander"] summary, [data-testid="stExpander"] summary p
+  { color: var(--ink); font-weight: 800; }
 
 @media (max-width: 600px) {
   .hero { flex-direction: column; text-align: center; }
   .bubble::before, .bubble::after { display: none; }
-  .brand { font-size: 1.6rem; }
+  .app-name { font-size: 1.45rem; }
+  .logo { width: 48px; height: 48px; font-size: 1.7rem; }
 }
 @media (prefers-reduced-motion: reduce) {
   .mascot { animation: none; }
-  .fill { transition: none; }
+  .fill, .stButton > button { transition: none; }
 }
 """
-st.markdown(f"<style>{CSS}</style>", unsafe_allow_html=True)
+st.markdown(
+    f"<style>{FONT_CSS}{THEME_CSS}{BASE_CSS}{THEMES[theme]['extra']}</style>",
+    unsafe_allow_html=True,
+)
 
 
 # ---------------------------------------------------------------
 # FUNGSI BANTU
 # ---------------------------------------------------------------
 def load_api_key():
-    """Ambil API key dari Streamlit Secrets, lalu environment variable."""
+    """Ambil Hugging Face token dari Streamlit Secrets atau environment."""
     try:
-        key = st.secrets.get("GEMINI_API_KEY", "")
+        key = st.secrets.get("HF_TOKEN", "")
     except Exception:
         key = ""
-    return key or os.environ.get("GEMINI_API_KEY", "")
+    return key or os.environ.get("HF_TOKEN", "")
 
 
-def render_stats(slot):
-    """Gambar bar statistik (jumlah tanya, XP, level) ke slot yang diberikan."""
+def is_busy(error):
+    """Deteksi error sementara dari provider atau batas rate."""
+    text = str(error).upper()
+    return any(k in text for k in ("503", "429", "502", "504", "RATE LIMIT", "OVERLOADED", "TEMPORARILY UNAVAILABLE"))
+
+
+def stream_reply(prompt):
+    """Kirim riwayat chat ke Hugging Face dan stream jawaban."""
+    client = st.session_state.hf_client
+    chat_messages = [{"role": "system", "content": SYSTEM_PROMPT}]
+    chat_messages.extend(st.session_state.messages)
+    last_error = None
+
+    for attempt in range(RETRIES):
+        try:
+            stream = client.chat.completions.create(
+                model=MODEL,
+                messages=chat_messages,
+                max_tokens=1000,
+                temperature=0.6,
+                stream=True,
+            )
+            for chunk in stream:
+                if not getattr(chunk, "choices", None):
+                    continue
+                delta = chunk.choices[0].delta
+                content = getattr(delta, "content", None)
+                if content:
+                    yield content
+            return
+        except Exception as e:
+            last_error = e
+            if not is_busy(e) or attempt == RETRIES - 1:
+                raise
+            time.sleep(2 ** attempt)
+    if last_error:
+        raise last_error
+
+
+def render_header(slot):
+    """Gambar header aplikasi (logo, statistik, progres level) ke slot."""
     xp = st.session_state.xp
     level = xp // XP_PER_LEVEL + 1
-    progress = (xp % XP_PER_LEVEL) / XP_PER_LEVEL * 100
+    into_level = xp % XP_PER_LEVEL
     title = LEVEL_TITLES[min(level - 1, len(LEVEL_TITLES) - 1)]
     slot.markdown(
-        f"""<div class="topbar">
-<div class="brand">🐍 pybuddy</div>
+        f"""<div class="appbar">
+<div class="appbar-top">
+<div class="brand"><div class="logo">🐍</div>
+<div><div class="app-name">PyBuddy</div><div class="app-tag">Teman belajar Python-mu</div></div></div>
 <div class="stats">
-<span class="pill fire">🔥 {st.session_state.asked}</span>
-<span class="pill xp">⭐ {xp} XP</span>
-<span class="pill lvl">🏆 Level {level}</span>
+<span class="pill">🔥 {st.session_state.asked} tanya</span>
+<span class="pill">⭐ {xp} XP</span>
 </div></div>
-<div class="level-row">
-<span class="level-name">{title}</span>
-<div class="track"><div class="fill" style="width:{progress}%"></div></div>
+<div class="level-meta"><span>🏆 Level {level} · {title}</span><span>{into_level}/{XP_PER_LEVEL} XP</span></div>
+<div class="track"><div class="fill" style="width:{into_level / XP_PER_LEVEL * 100}%"></div></div>
 </div>""",
         unsafe_allow_html=True,
     )
@@ -198,30 +334,49 @@ def render_stats(slot):
 # ---------------------------------------------------------------
 # SIDEBAR
 # ---------------------------------------------------------------
+st.session_state.setdefault("topic", None)
+
 with st.sidebar:
     st.markdown(
-        """<div class="side-card"><h4>👥 Untuk siapa?</h4>
-<p>Mahasiswa dan pelajar <b>pemula</b> yang baru belajar Python dan sering
-bingung saat bertemu konsep baru atau error.</p></div>
-<div class="side-card"><h4>💡 PyBuddy bisa bantu</h4>
-<ul>
-<li>Menjelaskan konsep dengan bahasa sederhana</li>
-<li>Mencari penyebab error di kodemu</li>
-<li>Memberi contoh kode dan latihan soal</li>
-</ul></div>""",
+        """<div class="side-brand"><div class="logo-sm">🐍</div>
+<div><div class="side-name">PyBuddy</div><div class="side-sub">Teman belajar Python</div></div></div>
+<div class="side-divider"></div>
+<div class="side-title">✨ Jelajahi</div>
+<div class="side-desc">Pilih topik atau tanyakan sendiri</div>""",
         unsafe_allow_html=True,
     )
 
-    # API key tidak ditampilkan di UI sama sekali.
-    # Dibaca dari .streamlit/secrets.toml atau environment variable.
-    google_api_key = load_api_key()
+    # Menu topik: klik untuk langsung bertanya.
+    for i, (emoji, label, question) in enumerate(TOPICS):
+        key = f"navon_{i}" if st.session_state.topic == i else f"nav_{i}"
+        if st.button(f"{emoji}  {label}", key=key):
+            st.session_state.topic = i
+            st.session_state.pending = question
+            st.rerun()
+
+    st.markdown('<div class="side-label">🎨 TAMPILAN</div>', unsafe_allow_html=True)
+    for name, t in THEMES.items():
+        key = f"themeon_{name}" if name == theme else f"theme_{name}"
+        if st.button(t["label"], key=key):
+            st.session_state.theme = name
+            st.rerun()
+
+    st.markdown('<div class="side-divider"></div>', unsafe_allow_html=True)
+    with st.expander("ℹ️ Tentang PyBuddy"):
+        st.markdown(
+            "**Untuk siapa?** Mahasiswa dan pelajar pemula yang baru belajar Python "
+            "dan sering bingung saat bertemu konsep baru atau error.\n\n"
+            "**Bisa bantu apa?** Menjelaskan konsep dengan bahasa sederhana, "
+            "mencari penyebab error, dan memberi contoh kode serta latihan soal."
+        )
+    hf_token = load_api_key()
 
     reset_button = st.button(
-        "Hapus percakapan",
+        "🗑️  Hapus percakapan",
         key="reset",
-        icon="🗑️",
         help="Hapus riwayat chat dan mulai dari awal",
     )
+    st.markdown('<div class="side-foot">Dibuat untuk pelajar Indonesia 💚</div>', unsafe_allow_html=True)
 
 # ---------------------------------------------------------------
 # STATE
@@ -231,50 +386,42 @@ if "messages" not in st.session_state:
 st.session_state.setdefault("xp", 0)
 st.session_state.setdefault("asked", 0)
 
-if google_api_key and (
-    "genai_client" not in st.session_state
-    or getattr(st.session_state, "_last_key", None) != google_api_key
+if hf_token and (
+    "hf_client" not in st.session_state
+    or getattr(st.session_state, "_last_hf_token", None) != hf_token
 ):
     try:
-        st.session_state.genai_client = genai.Client(api_key=google_api_key)
-        st.session_state._last_key = google_api_key
-        st.session_state.pop("chat", None)
+        st.session_state.hf_client = InferenceClient(
+            provider="auto",
+            api_key=hf_token,
+        )
+        st.session_state._last_hf_token = hf_token
         st.session_state.messages = []
     except Exception as e:
-        st.error(f"Tidak bisa menginisialisasi Gemini. Periksa API key kamu. Detail: {e}")
-        st.stop()
-
-if google_api_key and "genai_client" in st.session_state and "chat" not in st.session_state:
-    try:
-        st.session_state.chat = st.session_state.genai_client.chats.create(
-            model=MODEL,
-            config={"system_instruction": SYSTEM_PROMPT},
-        )
-    except Exception as e:
-        st.error(f"Gagal membuat sesi chat Gemini: {e}")
+        st.error(f"Tidak bisa menginisialisasi Hugging Face. Periksa token kamu. Detail: {e}")
         st.stop()
 
 if reset_button:
-    st.session_state.pop("chat", None)
     st.session_state.messages = []
     st.session_state.xp = 0
     st.session_state.asked = 0
+    st.session_state.topic = None
     st.rerun()
 
 # ---------------------------------------------------------------
 # HALAMAN UTAMA
 # ---------------------------------------------------------------
-stats_slot = st.empty()
-render_stats(stats_slot)
+header_slot = st.empty()
+render_header(header_slot)
 
-if not google_api_key:
+if not hf_token:
     st.markdown(
         """<div class="hero"><div class="mascot">🐍</div>
 <div class="bubble">Halo! API key belum diatur, jadi aku belum bisa menjawab.</div></div>""",
         unsafe_allow_html=True,
     )
     st.error(
-        "Tambahkan `GEMINI_API_KEY` di file `.streamlit/secrets.toml` "
+        "Tambahkan `HF_TOKEN` di file `.streamlit/secrets.toml` "
         "(atau di Secrets saat deploy), lalu jalankan ulang aplikasi.",
         icon="🗝️",
     )
@@ -282,12 +429,12 @@ if not google_api_key:
 
 pending = st.session_state.pop("pending", None)
 
-# Layar sambutan + tombol pertanyaan cepat
+# Layar sambutan + contoh pertanyaan
 if not st.session_state.messages and not pending:
     st.markdown(
         """<div class="hero"><div class="mascot">🐍</div>
 <div class="bubble">Hai, aku PyBuddy! Mau belajar apa hari ini?</div></div>
-<p class="hint">Mulai dari sini, atau ketik pertanyaanmu di bawah:</p>""",
+<p class="hint">Mulai dari sini, atau pilih topik di menu samping:</p>""",
         unsafe_allow_html=True,
     )
     cols = st.columns(2)
@@ -313,27 +460,31 @@ if prompt:
 
     with st.chat_message("assistant", avatar="🐍"):
         try:
-            response = st.session_state.chat.send_message_stream(prompt)
-            reply = st.write_stream(
-                chunk.text for chunk in response if getattr(chunk, "text", None)
-            )
+            reply = st.write_stream(stream_reply(prompt))
             st.session_state.messages.append({"role": "assistant", "content": reply})
 
             # Beri XP setiap pertanyaan berhasil dijawab.
             old_level = st.session_state.xp // XP_PER_LEVEL
             st.session_state.xp += XP_PER_QUESTION
             st.session_state.asked += 1
-            render_stats(stats_slot)
+            render_header(header_slot)
             if st.session_state.xp // XP_PER_LEVEL > old_level:
                 st.toast("Naik level! Kamu hebat 🎉", icon="🏆")
             else:
                 st.toast(f"+{XP_PER_QUESTION} XP", icon="⭐")
         except Exception as e:
-            st.error(
-                "Terjadi kesalahan saat menghubungi Gemini. "
-                "Periksa API key, koneksi internet, kuota, atau nama model. "
-                f"Detail: {e}"
-            )
+            if is_busy(e):
+                st.warning(
+                    "Provider Hugging Face sedang sibuk atau membatasi permintaan. "
+                    "Tunggu sebentar lalu kirim pertanyaanmu lagi.",
+                    icon="⏳",
+                )
+            else:
+                st.error(
+                    "Terjadi kesalahan saat menghubungi Hugging Face. "
+                    "Periksa Hugging Face token, izin Inference Providers, kuota, atau ketersediaan model. "
+                    f"Detail: {e}"
+                )
             # Hapus pesan user yang gagal diproses agar bisa dicoba lagi.
             if st.session_state.messages and st.session_state.messages[-1]["role"] == "user":
                 st.session_state.messages.pop()
